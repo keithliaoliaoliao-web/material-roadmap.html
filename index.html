@@ -79,29 +79,30 @@
     position: sticky; top: 0; z-index: 30;
     display: flex; align-items: center; justify-content: space-between;
     gap: 12px; flex-wrap: wrap;
-    padding: 12px 24px;
+    padding: 10px 24px;
     background: var(--header-bg);
     backdrop-filter: blur(6px);
     border-bottom: 1px solid var(--line);
   }
   .title-group { display: flex; align-items: center; gap: 8px; }
-  header h1 { font-size: 18px; margin: 0; font-weight: 600; cursor: pointer; border-bottom: 1px dashed transparent; }
+  header h1 { font-size: 17px; margin: 0; font-weight: 600; cursor: pointer; border-bottom: 1px dashed transparent; }
   header h1:hover { border-bottom-color: var(--accent); }
-  header .sub { font-size: 12px; color: var(--ink-dim); margin-top: 2px; }
-  .toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  header .sub { font-size: 11.5px; color: var(--ink-dim); margin-top: 2px; }
+  .toolbar { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
   
   button {
     font: inherit; cursor: pointer;
     border: 1px solid var(--line-strong);
     background: var(--surface-2); color: var(--ink);
-    padding: 5px 10px; border-radius: 6px; font-size: 12.5px;
+    padding: 5px 9px; border-radius: 6px; font-size: 12px;
     transition: all .15s ease;
   }
-  button:hover { border-color: var(--accent); }
-  button:active { transform: scale(0.97); }
+  button:hover:not(:disabled) { border-color: var(--accent); }
+  button:active:not(:disabled) { transform: scale(0.97); }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
   button.primary { background: var(--accent); color: var(--surface-2); border-color: var(--accent); }
   button.ghost { background: transparent; }
-  button.small { padding: 3px 7px; font-size: 12px; border-radius: 5px; }
+  button.small { padding: 3px 7px; font-size: 11.5px; border-radius: 5px; }
   button.icon { padding: 2px 6px; line-height: 1; }
 
   .view-mode-group {
@@ -112,7 +113,7 @@
     overflow: hidden;
   }
   .view-mode-group button {
-    border: none; border-radius: 0; padding: 5px 10px; background: transparent; font-size: 12px;
+    border: none; border-radius: 0; padding: 4px 9px; background: transparent; font-size: 11.5px;
   }
   .view-mode-group button.active {
     background: var(--accent); color: var(--surface-2); font-weight: 600;
@@ -144,7 +145,7 @@
     min-height: 48px;
   }
   
-  /* Excel 凍結窗格：固定左側欄位 */
+  /* Excel 凍結窗格 */
   .cell.left {
     position: sticky;
     left: 0;
@@ -262,7 +263,7 @@
   .detail-field:last-child { margin-bottom: 0; }
   .detail-field strong { color: var(--ink-dim); font-size: 11.5px; display: inline-block; width: 70px; }
 
-  /* 甘特圖長條色塊 */
+  /* 甘特圖色塊 */
   .gantt-bar {
     position: absolute; height: 26px; border-radius: 5px;
     color: #ffffff; cursor: move; border: 1px solid rgba(0,0,0,0.18);
@@ -311,7 +312,7 @@
   }
   .gantt-milestone-wrap.highlight .gantt-milestone-diamond { outline: 2px solid var(--ink); outline-offset: 2px; }
 
-  /* ---------- 黃色便利貼樣式 (依附於特定列) ---------- */
+  /* 黃色便利貼 */
   .sticky-note {
     position: absolute;
     top: -7px;
@@ -347,7 +348,7 @@
     font-size: 10px;
   }
 
-  /* 垂直時間區間背景遮罩 (Time Bands) */
+  /* 時段遮罩 (Time Bands) */
   .time-band-overlay {
     position: absolute; top: 0; bottom: 0; pointer-events: none; z-index: 2;
     background: rgba(201, 127, 30, 0.08);
@@ -413,7 +414,6 @@
   .row { display: flex; gap: 10px; }
   .row .field { flex: 1; }
 
-  /* 彈出對話框樣式 */
   .modal-dialog {
     display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
     width: min(720px, 92vw); background: var(--surface-2); border: 1px solid var(--line-strong);
@@ -436,9 +436,12 @@
       <h1 id="projectTitle" title="點擊修改專案名稱">新材料研發專案</h1>
       <button class="icon small ghost" id="btnEditTitle" title="修改專案名稱">✎</button>
     </div>
-    <div class="sub" id="projectMeta">最後更新: - ｜ 左側欄位已鎖定凍結，支援群組一鍵折疊</div>
+    <div class="sub" id="projectMeta">最後更新: - ｜ 支援 Ctrl+Z 復原與網址即時分享</div>
   </div>
   <div class="toolbar">
+    <!-- 操作復原/重做按鈕 -->
+    <button class="ghost small" id="btnUndo" title="復原上一步 (Ctrl+Z)" disabled>↩ 復原</button>
+    <button class="ghost small" id="btnRedo" title="重做下一步 (Ctrl+Y)" disabled>↪ 重做</button>
     <div class="view-mode-group">
       <button id="vm-week" onclick="switchViewMode('week')">週視圖</button>
       <button id="vm-month" class="active" onclick="switchViewMode('month')">月視圖</button>
@@ -446,6 +449,7 @@
     </div>
     <button class="small" id="btnAddStickyNote" title="在特定列新增黃色便利貼">📝 新增便籤</button>
     <button class="small" id="btnTimeBands" title="標記重點衝刺期或設備歲修">📅 時段遮罩</button>
+    <button class="small" id="btnShareLink" title="產生帶資料的唯讀網址並複製">🔗 分享連結</button>
     <button class="ghost small" id="btnTheme" title="切換主題">◐ 主題</button>
     <button class="small" id="btnExportImage" title="匯出高畫質圖片至 PPT">📷 匯出簡報圖 (PNG)</button>
     <button class="small" id="btnEditJson">檢視/貼上 JSON</button>
@@ -477,7 +481,7 @@
 </main>
 
 <footer>
-  單一 HTML 檔案，支援部署於 GitHub Pages；便利貼支援在所屬列中自由拖曳調整日期。
+  單一 HTML 檔案，支援部署於 GitHub Pages；支援 Ctrl+Z 歷史復原與免匯入網址即時分享。
 </footer>
 
 <!-- 編輯節點抽屜 (Drawer) -->
@@ -625,7 +629,7 @@
 (function(){
   "use strict";
 
-  var STORAGE_KEY = "material-core-schema-clickup-v6";
+  var STORAGE_KEY = "material-core-schema-clickup-v7";
   var STATUS_LABEL = { planned:"規劃中", in_progress:"研發中", validating:"驗證中", completed:"已完成", blocked:"暫停/瓶頸" };
   var STATUS_VAR = { planned:"--st-planned", in_progress:"--st-in_progress", validating:"--st-validating", completed:"--st-completed", blocked:"--st-blocked" };
 
@@ -649,26 +653,168 @@
   var viewMode = "month";
   var editingStickyId = null;
 
-  function loadState(){
-    try {
-      var raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) state = JSON.parse(raw);
-    } catch(e){}
-    if (!state) state = seedData();
+  // ---------- Undo / Redo 操作歷史堆疊 (保留 20 步) ----------
+  var historyStack = [];
+  var historyIndex = -1;
+  var MAX_HISTORY = 20;
+
+  function pushHistory(){
+    if (historyIndex < historyStack.length - 1){
+      historyStack = historyStack.slice(0, historyIndex + 1);
+    }
+    historyStack.push(JSON.stringify(state));
+    if (historyStack.length > MAX_HISTORY){
+      historyStack.shift();
+    } else {
+      historyIndex++;
+    }
+    updateHistoryButtons();
+  }
+
+  function undo(){
+    if (historyIndex > 0){
+      historyIndex--;
+      state = JSON.parse(historyStack[historyIndex]);
+      saveState(true); // 不重複 pushHistory
+      renderAll();
+      updateHistoryButtons();
+    }
+  }
+
+  function redo(){
+    if (historyIndex < historyStack.length - 1){
+      historyIndex++;
+      state = JSON.parse(historyStack[historyIndex]);
+      saveState(true);
+      renderAll();
+      updateHistoryButtons();
+    }
+  }
+
+  function updateHistoryButtons(){
+    var btnUndo = document.getElementById("btnUndo");
+    var btnRedo = document.getElementById("btnRedo");
+    if (btnUndo) btnUndo.disabled = (historyIndex <= 0);
+    if (btnRedo) btnRedo.disabled = (historyIndex >= historyStack.length - 1);
+  }
+
+  document.getElementById("btnUndo").onclick = undo;
+  document.getElementById("btnRedo").onclick = redo;
+
+  // 鍵盤監聽 Ctrl+Z 與 Ctrl+Y
+  window.addEventListener("keydown", function(e){
+    if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z"){
+      if (e.shiftKey) { redo(); } else { undo(); }
+      e.preventDefault();
+    } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "y"){
+      redo();
+      e.preventDefault();
+    }
+  });
+
+  // ---------- 三層式資料初始化 (URL Hash -> LocalStorage -> data.json) ----------
+  function initApp(){
+    // 1. 第一優先：檢查網址 Hash (#data=...)
+    var hash = window.location.hash;
+    if (hash && hash.indexOf("#data=") === 0){
+      try {
+        var encoded = hash.replace("#data=", "");
+        var jsonStr = decodeURIComponent(escape(atob(encoded)));
+        var parsed = JSON.parse(jsonStr);
+        if (parsed && Array.isArray(parsed.nodes)){
+          state = parsed;
+          finalizeState();
+          saveState(false);
+          renderAll();
+          alert("已成功從分享網址載入專案資料！");
+          return;
+        }
+      } catch(e){
+        console.warn("URL Hash 解析失敗，改讀本機快取", e);
+      }
+    }
+
+    // 2. 第二優先：讀取瀏覽器 localStorage
+    var localRaw = null;
+    try { localRaw = localStorage.getItem(STORAGE_KEY); } catch(e){}
+    if (localRaw){
+      try {
+        var parsedLocal = JSON.parse(localRaw);
+        if (parsedLocal && Array.isArray(parsedLocal.nodes)){
+          state = parsedLocal;
+          finalizeState();
+          historyStack = [JSON.stringify(state)];
+          historyIndex = 0;
+          updateHistoryButtons();
+          renderAll();
+          return;
+        }
+      } catch(e){}
+    }
+
+    // 3. 第三優先：嘗試讀取 GitHub 根目錄的 data.json 兜底
+    fetch("./data.json")
+      .then(function(res){
+        if (!res.ok) throw new Error("無 data.json");
+        return res.json();
+      })
+      .then(function(gitJson){
+        if (gitJson && Array.isArray(gitJson.nodes)){
+          state = gitJson;
+        } else {
+          state = seedData();
+        }
+        finalizeState();
+        saveState(false);
+        renderAll();
+      })
+      .catch(function(){
+        state = seedData();
+        finalizeState();
+        historyStack = [JSON.stringify(state)];
+        historyIndex = 0;
+        updateHistoryButtons();
+        renderAll();
+      });
+  }
+
+  function finalizeState(){
     if (!state.column_title) state.column_title = "材料架構 / 實驗階段";
     if (!state.time_bands) state.time_bands = [];
     if (!state.sticky_notes) state.sticky_notes = [];
     if (state.view_mode) viewMode = state.view_mode;
     updateViewModeButtons();
-    renderAll();
   }
 
-  function saveState(){
+  function saveState(skipHistory){
     try {
       state.view_mode = viewMode;
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     } catch(e){ console.error(e); }
+    if (!skipHistory){
+      pushHistory();
+    }
   }
+
+  // ---------- 網址一鍵分享功能 (URL Hash Sharing) ----------
+  document.getElementById("btnShareLink").onclick = function(){
+    try {
+      var jsonStr = JSON.stringify(state);
+      var encoded = btoa(unescape(encodeURIComponent(jsonStr)));
+      var url = window.location.origin + window.location.pathname + "#data=" + encoded;
+      
+      if (navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(url).then(function(){
+          alert("✓ 分享連結已複製到剪貼簿！\n傳送此連結給他人，對方即可直接檢視目前的進度表。");
+        });
+      } else {
+        prompt("請複製以下分享網址：", url);
+      }
+    } catch(err){
+      alert("產生分享連結失敗：" + err.message);
+    }
+  };
 
   function addDays(date, n){
     var d = new Date(date);
@@ -700,7 +846,7 @@
 
   window.switchViewMode = function(mode){
     viewMode = mode;
-    saveState();
+    saveState(false);
     updateViewModeButtons();
     renderAll();
   };
@@ -718,6 +864,7 @@
     return 4.5;
   }
 
+  // 階層樹狀平坦化處理
   function getFlattenedNodes(nodes){
     var result = [];
     var childrenMap = {};
@@ -768,7 +915,7 @@
   // ---------- 核心繪製邏輯 ----------
   function renderAll(){
     document.getElementById("projectTitle").textContent = state.project || "新材料研發專案";
-    document.getElementById("projectMeta").textContent = "最後更新: " + (state.updated_at || "-") + " ｜ 左側欄位已鎖定凍結，支援群組折疊與黃色便利貼";
+    document.getElementById("projectMeta").textContent = "最後更新: " + (state.updated_at || "-") + " ｜ 支援 Ctrl+Z 復原與網址即時分享";
 
     var grid = document.getElementById("roadmapGrid");
     var svgLayer = document.getElementById("dependency-svg");
@@ -926,7 +1073,7 @@
           }
         }
 
-        // ---------- 渲染依附於此列的黃色便利貼 ----------
+        // 渲染黃色便利貼
         var rowNotes = (state.sticky_notes || []).filter(function(sn){ return sn.node_id === node.id; });
         rowNotes.forEach(function(sn){
           if (!sn.date) return;
@@ -974,7 +1121,6 @@
     return d;
   }
 
-  // ---------- 拖曳黃色便利貼改變日期 ----------
   function bindStickyDrag(el, sn, dayWidth, minDate){
     var startX, origDateMs;
     var isDragging = false;
@@ -1011,7 +1157,7 @@
       document.body.style.userSelect = "";
 
       if (isDragging){
-        saveState();
+        saveState(false);
         renderAll();
       }
     }
@@ -1330,7 +1476,7 @@
 
       if (isDragging){
         state.updated_at = new Date().toISOString().split("T")[0];
-        saveState();
+        saveState(false);
         renderAll();
       }
     }
@@ -1408,7 +1554,7 @@
     state.nodes[idx] = state.nodes[globalTargetIdx];
     state.nodes[globalTargetIdx] = temp;
 
-    saveState();
+    saveState(false);
     renderAll();
   }
 
@@ -1527,7 +1673,7 @@
       state.nodes.push(editingNode);
     }
     state.updated_at = new Date().toISOString().split("T")[0];
-    saveState();
+    saveState(false);
     renderAll();
     closeDrawer();
   });
@@ -1538,7 +1684,7 @@
   document.getElementById("btnDelete").onclick = function(){
     if (!confirm("確定要刪除「" + editingNode.topic + "」嗎？")) return;
     state.nodes = state.nodes.filter(function(n){ return n.id !== editingNode.id; });
-    saveState();
+    saveState(false);
     renderAll();
     closeDrawer();
   };
@@ -1550,7 +1696,7 @@
     if (newTitle !== null && newTitle.trim() !== ""){
       state.project = newTitle.trim();
       state.updated_at = new Date().toISOString().split("T")[0];
-      saveState();
+      saveState(false);
       renderAll();
     }
   }
@@ -1561,12 +1707,12 @@
     var newCol = prompt("請輸入左側欄位標題：", state.column_title || "材料架構 / 實驗階段");
     if (newCol !== null && newCol.trim() !== ""){
       state.column_title = newCol.trim();
-      saveState();
+      saveState(false);
       renderAll();
     }
   }
 
-  // ---------- 黃色便利貼操作邏輯 ----------
+  // ---------- 黃色便利貼操作 ----------
   function openStickyModal(sn){
     editingStickyId = sn ? sn.id : null;
     var isEdit = !!sn;
@@ -1623,7 +1769,7 @@
       state.sticky_notes.push({ id: uid(), node_id: nodeId, date: date, text: text });
     }
 
-    saveState();
+    saveState(false);
     renderAll();
     closeStickyModal();
   };
@@ -1631,7 +1777,7 @@
   document.getElementById("btnDeleteSticky").onclick = function(){
     if (!confirm("確定要刪除這張便籤嗎？")) return;
     state.sticky_notes = state.sticky_notes.filter(function(x){ return x.id !== editingStickyId; });
-    saveState();
+    saveState(false);
     renderAll();
     closeStickyModal();
   };
@@ -1662,7 +1808,7 @@
       delBtn.className = "icon small ghost"; delBtn.textContent = "✕";
       delBtn.onclick = function(){
         state.time_bands.splice(idx, 1);
-        saveState();
+        saveState(false);
         renderTimeBandList();
         renderAll();
       };
@@ -1680,7 +1826,7 @@
     var end = document.getElementById("tbEnd").value;
     if (!name || !start || !end) return;
     state.time_bands.push({ id: uid(), name: name, start: start, end: end });
-    saveState();
+    saveState(false);
     renderTimeBandList();
     renderAll();
     document.getElementById("tbName").value = "";
@@ -1749,10 +1895,8 @@
         throw new Error("格式不符合 Core Schema：缺少 nodes 陣列");
       }
       state = parsed;
-      if (!state.column_title) state.column_title = "材料架構 / 實驗階段";
-      if (!state.time_bands) state.time_bands = [];
-      if (!state.sticky_notes) state.sticky_notes = [];
-      saveState();
+      finalizeState();
+      saveState(false);
       renderAll();
       closeJsonModal();
       alert("JSON 載入並渲染成功！");
@@ -1790,10 +1934,8 @@
         var json = JSON.parse(reader.result);
         if (!json.nodes) throw new Error("缺少 nodes 節點資料");
         state = json;
-        if (!state.column_title) state.column_title = "材料架構 / 實驗階段";
-        if (!state.time_bands) state.time_bands = [];
-        if (!state.sticky_notes) state.sticky_notes = [];
-        saveState();
+        finalizeState();
+        saveState(false);
         renderAll();
         alert("匯入成功！");
       } catch(e){ alert("匯入失敗：" + e.message); }
@@ -1817,7 +1959,7 @@
     if (grid) renderAll();
   });
 
-  loadState();
+  initApp();
 
 })();
 </script>
