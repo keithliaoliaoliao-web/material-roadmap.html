@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>材料開發進度圖</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #E7ECEA;
+    --bg-grid: rgba(20,48,63,0.055);
+    --surface: #F4F6F4;
+    --surface-2: #FFFFFF;
+    --ink: #16303B;
+    --ink-dim: #5B7480;
+    --line: rgba(22,48,59,0.18);
+    --line-strong: rgba(22,48,59,0.34);
+    --accent: #2E6E7E;
+    --danger: #B0503F;
+    --st-planned: #6E8492;
+    --st-active: #C97F1E;
+    --st-validating: #2E8FA1;
+    --st-done: #4C8F5B;
+    --st-hold: #B0503F;
+    --shadow: 0 1px 0 rgba(22,48,59,0.06);
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0F2A3A;
+      --bg-grid: rgba(255,255,255,0.045);
+      --surface: #143247;
+      --surface-2: #1B3E56;
+      --ink: #E9F1F3;
+      --ink-dim: #93AEBB;
+      --line: rgba(233,241,243,0.16);
+      --line-strong: rgba(233,241,243,0.32);
+      --accent: #6FC3D6;
+      --danger: #E08571;
+      --st-planned: #8CA0AC;
+      --st-active: #E8A33D;
+      --st-validating: #5EC8D8;
+      --st-done: #7FB77E;
+      --st-hold: #D98572;
+      --shadow: 0 1px 0 rgba(0,0,0,0.3);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0F2A3A;
+    --bg-grid: rgba(255,255,255,0.045);
+    --surface: #143247;
+    --surface-2: #1B3E56;
+    --ink: #E9F1F3;
+    --ink-dim: #93AEBB;
+    --line: rgba(233,241,243,0.16);
+    --line-strong: rgba(233,241,243,0.32);
+    --accent: #6FC3D6;
+    --danger: #E08571;
+    --st-planned: #8CA0AC;
+    --st-active: #E8A33D;
+    --st-validating: #5EC8D8;
+    --st-done: #7FB77E;
+    --st-hold: #D98572;
+    --shadow: 0 1px 0 rgba(0,0,0,0.3);
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background:
+      linear-gradient(var(--bg-grid) 1px, transparent 1px) 0 0 / 100% 28px,
+      linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px) 0 0 / 28px 100%,
+      var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  .mono { font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace; }
+
+  header {
+    position: sticky; top: 0; z-index: 20;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap;
+    padding: 16px 24px;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--line);
+  }
+  header h1 { font-size: 18px; margin: 0; font-weight: 600; letter-spacing: 0.2px; }
+  header .sub { font-size: 12px; color: var(--ink-dim); margin-top: 2px; }
+  .toolbar { display: flex; gap: 8px; flex-wrap: wrap; }
+  button {
+    font: inherit; cursor: pointer;
+    border: 1px solid var(--line-strong);
+    background: var(--surface-2);
+    color: var(--ink);
+    padding: 7px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    transition: border-color .15s ease, transform .1s ease;
+  }
+  button:hover { border-color: var(--accent); }
+  button:active { transform: scale(0.97); }
+  button.primary { background: var(--accent); color: var(--surface-2); border-color: var(--accent); }
+  button.ghost { background: transparent; }
+  button.small { padding: 3px 8px; font-size: 12px; border-radius: 5px; }
+  button.icon { padding: 3px 7px; line-height: 1; }
+
+  main { padding: 24px; max-width: 1200px; margin: 0 auto; }
+
+  section.panel {
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 24px;
+    overflow-x: auto;
+  }
+  section.panel > h2 {
+    font-size: 13px; text-transform: none; letter-spacing: 0.3px;
+    color: var(--ink-dim); font-weight: 600; margin: 0 0 16px 0;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  /* ---------- Mind map tree ---------- */
+  ul.tree, ul.tree ul { list-style: none; margin: 0; padding-left: 28px; position: relative; }
+  ul.tree { padding-left: 0; }
+  ul.tree ul { border-left: 1px solid var(--line); margin-top: 6px; }
+  ul.tree li { position: relative; padding: 6px 0 6px 20px; }
+  ul.tree > li { padding-left: 0; }
+  ul.tree ul li::before {
+    content: ''; position: absolute; top: 20px; left: 0; width: 16px; height: 1px;
+    background: var(--line);
+  }
+  .node {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--surface-2); border: 1px solid var(--line);
+    border-radius: 7px; padding: 7px 10px;
+    cursor: pointer; max-width: 100%;
+    box-shadow: var(--shadow);
+  }
+  .node:hover { border-color: var(--accent); }
+  .node.branch { font-weight: 600; }
+  .node.highlight { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent); }
+  .dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+  .node .label { font-size: 13.5px; }
+  .node .dates { font-size: 11px; color: var(--ink-dim); }
+  .node-actions { display: none; gap: 4px; margin-left: 2px; }
+  .node:hover .node-actions { display: inline-flex; }
+  .add-phase-btn { margin-top: 6px; }
+
+  /* ---------- Timeline / Gantt ---------- */
+  .gantt { min-width: 640px; }
+  .gantt-scale {
+    display: grid; position: relative; height: 26px; margin-left: 200px;
+    border-bottom: 1px solid var(--line);
+  }
+  .gantt-scale span {
+    position: absolute; top: 0; font-size: 11px; color: var(--ink-dim);
+    border-left: 1px solid var(--line); padding-left: 4px; height: 100%;
+  }
+  .gantt-row { display: flex; align-items: center; min-height: 40px; border-top: 1px solid var(--line); }
+  .gantt-row:first-of-type { border-top: none; }
+  .gantt-rowlabel {
+    width: 200px; flex: none; font-size: 13px; font-weight: 600;
+    padding-right: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .gantt-track { position: relative; flex: 1; height: 40px; }
+  .gantt-bar {
+    position: absolute; top: 8px; height: 24px; border-radius: 5px;
+    font-size: 11px; color: #0c1c22; display: flex; align-items: center;
+    padding: 0 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    cursor: pointer; border: 1px solid rgba(0,0,0,0.15);
+    transition: outline .12s ease;
+  }
+  .gantt-bar.highlight { outline: 2px solid var(--ink); outline-offset: 1px; }
+  .today-line {
+    position: absolute; top: -26px; bottom: 0; width: 1px; background: var(--danger); z-index: 2;
+  }
+  .today-line::after {
+    content: '今天'; position: absolute; top: -16px; left: 3px; font-size: 10px; color: var(--danger);
+    font-family: "IBM Plex Mono", monospace;
+  }
+
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--ink-dim); margin-top: 14px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+
+  .empty-hint {
+    color: var(--ink-dim); font-size: 13px; padding: 20px; text-align: center;
+    border: 1px dashed var(--line); border-radius: 8px;
+  }
+
+  /* ---------- Edit drawer ---------- */
+  .overlay {
+    position: fixed; inset: 0; background: rgba(10,20,26,0.35);
+    opacity: 0; pointer-events: none; transition: opacity .18s ease; z-index: 30;
+  }
+  .overlay.open { opacity: 1; pointer-events: auto; }
+  .drawer {
+    position: fixed; top: 0; right: 0; height: 100%; width: min(380px, 92vw);
+    background: var(--surface-2); border-left: 1px solid var(--line);
+    transform: translateX(100%); transition: transform .2s ease;
+    z-index: 31; padding: 22px; overflow-y: auto;
+  }
+  .drawer.open { transform: translateX(0); }
+  .drawer h3 { margin: 0 0 16px 0; font-size: 15px; }
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 12px; color: var(--ink-dim); margin-bottom: 5px; }
+  .field input, .field select, .field textarea {
+    width: 100%; font: inherit; font-size: 13px; padding: 8px 9px;
+    border: 1px solid var(--line-strong); border-radius: 6px;
+    background: var(--surface); color: var(--ink);
+  }
+  .field textarea { min-height: 70px; resize: vertical; }
+  .drawer-actions { display: flex; justify-content: space-between; gap: 8px; margin-top: 18px; }
+  .row { display: flex; gap: 10px; }
+  .row .field { flex: 1; }
+
+  footer { text-align: center; font-size: 11.5px; color: var(--ink-dim); padding: 12px 24px 32px; }
+  footer a { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>材料開發進度圖</h1>
+    <div class="sub">心智圖（分支／階段）＋對應時間軸，資料只存在你的瀏覽器與匯出的 JSON 中</div>
+  </div>
+  <div class="toolbar">
+    <button class="ghost small" id="btnReload" title="若同目錄下有 data.json，重新從該檔案載入">↺ 重新載入 data.json</button>
+    <button class="ghost small" id="btnTheme" title="切換淺色／深色">◐ 切換主題</button>
+    <button class="small" id="btnExport">匯出 JSON</button>
+    <button class="small" id="btnImport">匯入 JSON</button>
+    <input type="file" id="fileImport" accept="application/json" style="display:none">
+    <button class="primary small" id="btnAddBranch">＋ 新增分支</button>
+  </div>
+</header>
+
+<main>
+
+  <section class="panel">
+    <h2>心智圖 — 材料 / 技術分支與開發階段</h2>
+    <ul class="tree" id="tree"></ul>
+    <div class="legend" id="legendMap"></div>
+  </section>
+
+  <section class="panel">
+    <h2>時間軸 — 各階段排程</h2>
+    <div class="gantt" id="gantt"></div>
+  </section>
+
+</main>
+
+<footer>
+  單一 HTML 檔案，可直接放進 GitHub repo 用 GitHub Pages host；資料存於瀏覽器 localStorage，用「匯出 JSON」備份或加入版本控制。
+</footer>
+
+<div class="overlay" id="overlay"></div>
+<div class="drawer" id="drawer">
+  <h3 id="drawerTitle">編輯節點</h3>
+  <form id="editForm">
+    <div class="field">
+      <label>名稱</label>
+      <input type="text" id="fName" required>
+    </div>
+    <div class="field">
+      <label>狀態</label>
+      <select id="fStatus">
+        <option value="planned">規劃中</option>
+        <option value="active">研發中</option>
+        <option value="validating">驗證中</option>
+        <option value="done">已完成</option>
+        <option value="hold">暫停</option>
+      </select>
+    </div>
+    <div class="row" id="dateFields">
+      <div class="field">
+        <label>開始日期</label>
+        <input type="date" id="fStart">
+      </div>
+      <div class="field">
+        <label>結束日期</label>
+        <input type="date" id="fEnd">
+      </div>
+    </div>
+    <div class="field">
+      <label>備註</label>
+      <textarea id="fNote" placeholder="配方、設備、負責人、卡關原因…都可以寫在這裡"></textarea>
+    </div>
+    <div class="drawer-actions">
+      <button type="button" class="ghost small" id="btnDelete">刪除此節點</button>
+      <div style="display:flex; gap:8px;">
+        <button type="button" class="ghost small" id="btnCancel">取消</button>
+        <button type="submit" class="primary small">儲存</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var STORAGE_KEY = "material-roadmap-data-v1";
+  var STATUS_LABEL = { planned:"規劃中", active:"研發中", validating:"驗證中", done:"已完成", hold:"暫停" };
+  var STATUS_VAR = { planned:"--st-planned", active:"--st-active", validating:"--st-validating", done:"--st-done", hold:"--st-hold" };
+
+  function seedData(){
+    return {
+      branches: [
+        {
+          id: uid(), name: "範例：材料 A（示範用，可直接編輯或刪除）", status: "active",
+          phases: [
+            { id: uid(), name: "配方篩選", status: "done", start: "2026-01-05", end: "2026-02-15", note: "" },
+            { id: uid(), name: "性能驗證", status: "active", start: "2026-02-16", end: "2026-04-30", note: "" },
+            { id: uid(), name: "量產放大評估", status: "planned", start: "2026-05-01", end: "2026-07-31", note: "" }
+          ]
+        }
+      ]
+    };
+  }
+
+  function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+  var state = null;
+
+  function loadState(cb){
+    var local = null;
+    try { var raw = localStorage.getItem(STORAGE_KEY); if (raw) local = JSON.parse(raw); } catch(e){}
+    if (local) { state = local; cb(); return; }
+    fetchDataJson(function(remote){
+      state = remote || seedData();
+      cb();
+    });
+  }
+
+  function fetchDataJson(cb){
+    try {
+      fetch("data.json", { cache: "no-store" })
+        .then(function(r){ if(!r.ok) throw new Error("no data.json"); return r.json(); })
+        .then(function(json){ cb(json); })
+        .catch(function(){ cb(null); });
+    } catch(e){ cb(null); }
+  }
+
+  function saveState(){
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e){
+      console.error("儲存失敗", e);
+    }
+  }
+
+  // ---------- Rendering: mind map tree ----------
+  function renderTree(){
+    var tree = document.getElementById("tree");
+    tree.innerHTML = "";
+    if (!state.branches.length){
+      var li = document.createElement("li");
+      li.innerHTML = '<div class="empty-hint">還沒有任何分支，點右上角「＋ 新增分支」開始建立。</div>';
+      tree.appendChild(li);
+      return;
+    }
+    state.branches.forEach(function(branch){
+      var li = document.createElement("li");
+      li.appendChild(buildNodeEl(branch, "branch"));
+
+      var addBtn = document.createElement("button");
+      addBtn.className = "ghost small add-phase-btn";
+      addBtn.textContent = "＋ 新增階段";
+      addBtn.onclick = function(){ openDrawer("phase", null, branch.id); };
+      li.appendChild(addBtn);
+
+      if (branch.phases && branch.phases.length){
+        var ul = document.createElement("ul");
+        branch.phases.forEach(function(phase){
+          var pli = document.createElement("li");
+          pli.appendChild(buildNodeEl(phase, "phase", branch.id));
+          ul.appendChild(pli);
+        });
+        li.appendChild(ul);
+      }
+      tree.appendChild(li);
+    });
+  }
+
+  function buildNodeEl(node, kind, parentId){
+    var wrap = document.createElement("div");
+    wrap.className = "node" + (kind === "branch" ? " branch" : "");
+    wrap.dataset.nodeId = node.id;
+
+    var dot = document.createElement("span");
+    dot.className = "dot";
+    dot.style.background = "var(" + STATUS_VAR[node.status] + ")";
+    wrap.appendChild(dot);
+
+    var label = document.createElement("span");
+    label.className = "label";
+    label.textContent = node.name;
+    wrap.appendChild(label);
+
+    if (kind === "phase" && (node.start || node.end)){
+      var dates = document.createElement("span");
+      dates.className = "dates mono";
+      dates.textContent = (node.start || "?") + " → " + (node.end || "?");
+      wrap.appendChild(dates);
+    }
+
+    var actions = document.createElement("span");
+    actions.className = "node-actions";
+    var editBtn = document.createElement("button");
+    editBtn.className = "icon small ghost"; editBtn.textContent = "✎";
+    editBtn.onclick = function(ev){ ev.stopPropagation(); openDrawer(kind, node, parentId); };
+    actions.appendChild(editBtn);
+    wrap.appendChild(actions);
+
+    wrap.onclick = function(){
+      openDrawer(kind, node, parentId);
+      highlightPair(node.id);
+    };
+    return wrap;
+  }
+
+  // ---------- Rendering: timeline / gantt ----------
+  function renderGantt(){
+    var container = document.getElementById("gantt");
+    container.innerHTML = "";
+
+    var allPhases = [];
+    state.branches.forEach(function(b){
+      (b.phases||[]).forEach(function(p){ if (p.start && p.end) allPhases.push(p); });
+    });
+
+    if (!allPhases.length){
+      container.innerHTML = '<div class="empty-hint">目前沒有帶開始／結束日期的階段。編輯一個階段節點並填入日期，就會顯示在這裡。</div>';
+      return;
+    }
+
+    var minDate = new Date(Math.min.apply(null, allPhases.map(function(p){ return new Date(p.start).getTime(); })));
+    var maxDate = new Date(Math.max.apply(null, allPhases.map(function(p){ return new Date(p.end).getTime(); })));
+    // pad a little on each side
+    minDate = addDays(minDate, -7);
+    maxDate = addDays(maxDate, 7);
+    var totalMs = maxDate.getTime() - minDate.getTime();
+
+    // month scale
+    var scale = document.createElement("div");
+    scale.className = "gantt-scale";
+    var cursor = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
+    while (cursor <= maxDate){
+      var pct = ((cursor.getTime() - minDate.getTime()) / totalMs) * 100;
+      var mark = document.createElement("span");
+      mark.className = "mono";
+      mark.style.left = "calc(" + pct + "% )";
+      mark.textContent = (cursor.getMonth()+1) + "月";
+      scale.appendChild(mark);
+      cursor = new Date(cursor.getFullYear(), cursor.getMonth()+1, 1);
+    }
+    container.appendChild(scale);
+
+    state.branches.forEach(function(branch){
+      var row = document.createElement("div");
+      row.className = "gantt-row";
+
+      var rowLabel = document.createElement("div");
+      rowLabel.className = "gantt-rowlabel";
+      rowLabel.textContent = branch.name;
+      row.appendChild(rowLabel);
+
+      var track = document.createElement("div");
+      track.className = "gantt-track";
+
+      (branch.phases||[]).forEach(function(phase){
+        if (!phase.start || !phase.end) return;
+        var s = new Date(phase.start).getTime();
+        var e = new Date(phase.end).getTime();
+        var left = ((s - minDate.getTime()) / totalMs) * 100;
+        var width = Math.max(((e - s) / totalMs) * 100, 1.2);
+
+        var bar = document.createElement("div");
+        bar.className = "gantt-bar mono";
+        bar.dataset.nodeId = phase.id;
+        bar.style.left = left + "%";
+        bar.style.width = width + "%";
+        bar.style.background = "var(" + STATUS_VAR[phase.status] + ")";
+        bar.textContent = phase.name;
+        bar.title = phase.name + " (" + STATUS_LABEL[phase.status] + ") " + phase.start + " → " + phase.end;
+        bar.onclick = function(){ openDrawer("phase", phase, branch.id); highlightPair(phase.id); };
+        track.appendChild(bar);
+      });
+
+      // today line
+      var today = new Date();
+      if (today >= minDate && today <= maxDate){
+        var tpct = ((today.getTime() - minDate.getTime()) / totalMs) * 100;
+        var tl = document.createElement("div");
+        tl.className = "today-line";
+        tl.style.left = tpct + "%";
+        track.appendChild(tl);
+      }
+
+      row.appendChild(track);
+      container.appendChild(row);
+    });
+  }
+
+  function addDays(date, n){ var d = new Date(date); d.setDate(d.getDate()+n); return d; }
+
+  function highlightPair(nodeId){
+    document.querySelectorAll(".node.highlight, .gantt-bar.highlight").forEach(function(el){
+      el.classList.remove("highlight");
+    });
+    document.querySelectorAll('[data-node-id="' + nodeId + '"]').forEach(function(el){
+      el.classList.add("highlight");
+      if (el.classList.contains("gantt-bar")){
+        el.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+      }
+    });
+  }
+
+  function renderLegend(){
+    var el = document.getElementById("legendMap");
+    el.innerHTML = "";
+    Object.keys(STATUS_LABEL).forEach(function(key){
+      var span = document.createElement("span");
+      span.innerHTML = '<span class="dot" style="width:8px;height:8px;background:var(' + STATUS_VAR[key] + ')"></span>' + STATUS_LABEL[key];
+      el.appendChild(span);
+    });
+  }
+
+  function renderAll(){
+    renderTree();
+    renderGantt();
+    renderLegend();
+  }
+
+  // ---------- Drawer / edit form ----------
+  var drawerCtx = { kind: null, node: null, parentId: null, isNew: false };
+
+  function openDrawer(kind, node, parentId){
+    var isNew = !node;
+    drawerCtx = {
+      kind: kind,
+      node: node || { id: uid(), name: "", status: "planned", start: "", end: "", note: "" },
+      parentId: parentId,
+      isNew: isNew
+    };
+    document.getElementById("drawerTitle").textContent =
+      (isNew ? "新增" : "編輯") + (kind === "branch" ? "分支" : "階段");
+    document.getElementById("fName").value = drawerCtx.node.name || "";
+    document.getElementById("fStatus").value = drawerCtx.node.status || "planned";
+    document.getElementById("fNote").value = drawerCtx.node.note || "";
+    document.getElementById("dateFields").style.display = kind === "phase" ? "flex" : "none";
+    document.getElementById("fStart").value = drawerCtx.node.start || "";
+    document.getElementById("fEnd").value = drawerCtx.node.end || "";
+    document.getElementById("btnDelete").style.display = isNew ? "none" : "inline-block";
+    document.getElementById("overlay").classList.add("open");
+    document.getElementById("drawer").classList.add("open");
+    document.getElementById("fName").focus();
+  }
+
+  function closeDrawer(){
+    document.getElementById("overlay").classList.remove("open");
+    document.getElementById("drawer").classList.remove("open");
+  }
+
+  document.getElementById("editForm").addEventListener("submit", function(ev){
+    ev.preventDefault();
+    var node = drawerCtx.node;
+    node.name = document.getElementById("fName").value.trim() || "未命名";
+    node.status = document.getElementById("fStatus").value;
+    node.note = document.getElementById("fNote").value;
+    if (drawerCtx.kind === "phase"){
+      node.start = document.getElementById("fStart").value;
+      node.end = document.getElementById("fEnd").value;
+    }
+
+    if (drawerCtx.isNew){
+      if (drawerCtx.kind === "branch"){
+        node.phases = [];
+        state.branches.push(node);
+      } else {
+        var branch = state.branches.find(function(b){ return b.id === drawerCtx.parentId; });
+        if (branch) branch.phases.push(node);
+      }
+    }
+    saveState();
+    renderAll();
+    closeDrawer();
+  });
+
+  document.getElementById("btnCancel").onclick = closeDrawer;
+  document.getElementById("overlay").onclick = closeDrawer;
+
+  document.getElementById("btnDelete").onclick = function(){
+    if (!confirm("確定要刪除「" + drawerCtx.node.name + "」嗎？此動作無法復原。")) return;
+    if (drawerCtx.kind === "branch"){
+      state.branches = state.branches.filter(function(b){ return b.id !== drawerCtx.node.id; });
+    } else {
+      var branch = state.branches.find(function(b){ return b.id === drawerCtx.parentId; });
+      if (branch) branch.phases = branch.phases.filter(function(p){ return p.id !== drawerCtx.node.id; });
+    }
+    saveState();
+    renderAll();
+    closeDrawer();
+  };
+
+  document.getElementById("btnAddBranch").onclick = function(){ openDrawer("branch", null, null); };
+
+  // ---------- Export / Import ----------
+  document.getElementById("btnExport").onclick = function(){
+    var blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "data.json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  document.getElementById("btnImport").onclick = function(){
+    document.getElementById("fileImport").click();
+  };
+  document.getElementById("fileImport").addEventListener("change", function(ev){
+    var file = ev.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(){
+      try {
+        var json = JSON.parse(reader.result);
+        if (!json.branches) throw new Error("格式不正確：缺少 branches");
+        state = json;
+        saveState();
+        renderAll();
+        alert("匯入成功");
+      } catch(e){
+        alert("匯入失敗：" + e.message);
+      }
+    };
+    reader.readAsText(file);
+    ev.target.value = "";
+  });
+
+  document.getElementById("btnReload").onclick = function(){
+    if (!confirm("將捨棄目前瀏覽器中的內容，改讀取同目錄下的 data.json，確定嗎？")) return;
+    fetchDataJson(function(remote){
+      if (!remote){
+        alert("找不到可用的 data.json（若是在 Claude 預覽中屬正常現象；部署到 GitHub Pages 且同目錄放了 data.json 才會生效）。");
+        return;
+      }
+      state = remote;
+      saveState();
+      renderAll();
+    });
+  };
+
+  // ---------- Theme toggle ----------
+  document.getElementById("btnTheme").onclick = function(){
+    var root = document.documentElement;
+    var current = root.getAttribute("data-theme");
+    if (current === "dark") root.setAttribute("data-theme", "light");
+    else if (current === "light") root.removeAttribute("data-theme");
+    else root.setAttribute("data-theme", "dark");
+  };
+
+  // ---------- Boot ----------
+  loadState(function(){ renderAll(); });
+
+})();
+</script>
+</body>
+</html>
