@@ -90,7 +90,6 @@
   header .sub { font-size: 12px; color: var(--ink-dim); margin-top: 2px; }
   .toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
   
-  /* 按鈕樣式 */
   button {
     font: inherit; cursor: pointer;
     border: 1px solid var(--line-strong);
@@ -137,7 +136,6 @@
     position: relative;
   }
 
-  /* ---------- Combined tree + timeline grid ---------- */
   .roadmap-wrap {
     overflow-x: auto;
     position: relative;
@@ -153,7 +151,7 @@
     min-height: 48px;
   }
   
-  /* 左側格線控制：頂層保留橫線，子項目完全去除橫線 */
+  /* 左側格線控制：頂層保留橫線，子層無橫線 */
   .cell.left {
     padding: 6px 12px 6px 6px;
     flex-direction: column;
@@ -167,7 +165,6 @@
     border-top: none !important;
   }
 
-  /* 右側時間軸格線 */
   .cell.right {
     position: relative;
     overflow: visible;
@@ -176,7 +173,7 @@
   }
   .roadmap-grid > .cell:nth-child(-n+2) { border-top: none !important; }
 
-  /* 方案 A：左側欄位標題美化 */
+  /* 左側欄位標題美化 */
   .cell.header-left {
     display: flex; align-items: center;
     padding-left: 6px; padding-right: 14px;
@@ -214,7 +211,7 @@
     position: relative;
   }
 
-  /* ---------- 父子階層引線 (Tree Connectors) ---------- */
+  /* 父子階層引線 */
   .tree-indent-wrap {
     display: inline-flex;
     align-items: center;
@@ -298,7 +295,7 @@
   .detail-field:last-child { margin-bottom: 0; }
   .detail-field strong { color: var(--ink-dim); font-size: 11.5px; display: inline-block; width: 70px; }
 
-  /* ---------- 甘特圖色塊 (方案 1 + 3) ---------- */
+  /* 甘特圖色塊 (方案 1 + 3) */
   .gantt-bar {
     position: absolute; height: 26px; border-radius: 5px;
     color: #ffffff; cursor: move; border: 1px solid rgba(0,0,0,0.18);
@@ -308,7 +305,7 @@
   }
   .gantt-bar.highlight { outline: 2px solid var(--ink); outline-offset: 1px; }
 
-  /* 底層進度填充條 (Progress Fill) */
+  /* 底層進度填充 */
   .gantt-progress-fill {
     position: absolute; top: 0; left: 0; bottom: 0;
     background: rgba(0, 0, 0, 0.22);
@@ -331,7 +328,7 @@
     font-size: 10px; opacity: 0.85; margin-left: 8px;
   }
 
-  /* 左右兩端伸縮調整手把 (Resize Handles) */
+  /* 左右縮放手把 */
   .resize-handle {
     position: absolute; top: 0; bottom: 0; width: 6px;
     cursor: col-resize; z-index: 3;
@@ -340,7 +337,7 @@
   .resize-handle.right { right: 0; }
   .resize-handle:hover { background: rgba(255,255,255,0.4); }
 
-  /* 功能 A：里程碑菱形節點 */
+  /* 里程碑菱形節點 */
   .gantt-milestone {
     position: absolute; width: 15px; height: 15px;
     transform: rotate(45deg); border-radius: 2px;
@@ -352,7 +349,7 @@
     outline: 2px solid var(--ink); outline-offset: 2px;
   }
 
-  /* 相依性箭頭圖層 (SVG Overlay) */
+  /* SVG 相依性圖層 */
   #dependency-svg {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     pointer-events: none; z-index: 5;
@@ -435,7 +432,6 @@
     <div class="sub" id="projectMeta">最後更新: - ｜ 可滑鼠直接拖曳色塊或兩側手把調控工期</div>
   </div>
   <div class="toolbar">
-    <!-- 功能 B：視圖切換按鈕群組 -->
     <div class="view-mode-group">
       <button id="vm-week" onclick="switchViewMode('week')">週視圖</button>
       <button id="vm-month" class="active" onclick="switchViewMode('month')">月視圖</button>
@@ -455,7 +451,6 @@
   <section class="panel" id="captureTarget">
     <div class="roadmap-wrap" id="roadmapWrap">
       <div class="roadmap-grid" id="roadmapGrid">
-        <!-- SVG 相依性導引箭頭連線圖層 -->
         <svg id="dependency-svg">
           <defs>
             <marker id="arrow-normal" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
@@ -516,7 +511,7 @@
         <select id="fParentSelect"></select>
       </div>
     </div>
-    <!-- 功能 D：前置任務相依下拉選單 -->
+    <!-- 方案 A：前置任務過濾掉系統主幹 -->
     <div class="field">
       <label>前置任務相依 (Predecessor Dependency)</label>
       <select id="fDependencySelect">
@@ -570,7 +565,7 @@
 (function(){
   "use strict";
 
-  var STORAGE_KEY = "material-core-schema-clickup-v1";
+  var STORAGE_KEY = "material-core-schema-clickup-v2";
   var STATUS_LABEL = { planned:"規劃中", in_progress:"研發中", validating:"驗證中", completed:"已完成", blocked:"暫停/瓶頸" };
   var STATUS_VAR = { planned:"--st-planned", in_progress:"--st-in_progress", validating:"--st-validating", completed:"--st-completed", blocked:"--st-blocked" };
 
@@ -588,7 +583,7 @@
 
   var state = null;
   var expandedDetails = {}; 
-  var viewMode = "month"; // week | month | quarter
+  var viewMode = "month";
 
   function loadState(){
     try {
@@ -624,7 +619,6 @@
       .replace(/\n/g, '<br>');
   }
 
-  // 自動計算總工期（天數或月份）
   function formatDuration(startStr, endStr){
     if (!startStr || !endStr) return "";
     var s = new Date(startStr);
@@ -638,7 +632,6 @@
     return days + " 天";
   }
 
-  // 視圖切換
   window.switchViewMode = function(mode){
     viewMode = mode;
     saveState();
@@ -653,14 +646,12 @@
     });
   }
 
-  // 取得每日像素寬度 (Day Width)
   function getDayWidth(){
-    if (viewMode === "week") return 16;     // 1天 = 16px
-    if (viewMode === "quarter") return 1.5;  // 1天 = 1.5px
-    return 4.5;                             // 1天 = 4.5px (月視圖)
+    if (viewMode === "week") return 16;
+    if (viewMode === "quarter") return 1.5;
+    return 4.5;
   }
 
-  // 階層樹狀平坦化處理
   function getFlattenedNodes(nodes){
     var result = [];
     var childrenMap = {};
@@ -696,21 +687,18 @@
     return result;
   }
 
-  // ---------- 核心渲染邏輯 ----------
+  // ---------- 主要繪製邏輯 ----------
   function renderAll(){
     document.getElementById("projectTitle").textContent = state.project || "新材料研發專案";
     document.getElementById("projectMeta").textContent = "最後更新: " + (state.updated_at || "-") + " ｜ 可直接拖曳色塊調整日期或拉動邊緣調整工期";
 
     var grid = document.getElementById("roadmapGrid");
-    
-    // 清空舊節點，但保留 svg#dependency-svg
     var svgLayer = document.getElementById("dependency-svg");
     grid.innerHTML = "";
     grid.appendChild(svgLayer);
 
     var flatList = getFlattenedNodes(state.nodes || []);
 
-    // 計算時間尺度
     var datedNodes = flatList.map(function(item){ return item.node; }).filter(function(n){ return n.start_date && n.end_date; });
     var minDate, maxDate, totalDays, totalMs, hasScale = false;
     var dayWidth = getDayWidth();
@@ -720,7 +708,6 @@
       var rawMin = new Date(Math.min.apply(null, datedNodes.map(function(n){ return new Date(n.start_date).getTime(); })));
       var rawMax = new Date(Math.max.apply(null, datedNodes.map(function(n){ return new Date(n.end_date).getTime(); })));
 
-      // 視圖寬裕緩衝邊界
       var padStart = (viewMode === "week") ? 5 : 10;
       var padEnd = (viewMode === "week") ? 7 : 14;
       minDate = addDays(rawMin, -padStart);
@@ -729,7 +716,6 @@
       totalMs = maxDate.getTime() - minDate.getTime();
       totalDays = Math.ceil(totalMs / (24 * 3600 * 1000));
 
-      // 動態更新右側欄與整個 Grid 最小寬度
       var rightColWidth = Math.max(700, totalDays * dayWidth);
       grid.style.gridTemplateColumns = "440px " + rightColWidth + "px";
       grid.style.minWidth = (440 + rightColWidth) + "px";
@@ -760,7 +746,7 @@
     headerLeft.appendChild(titleBox);
     grid.appendChild(headerLeft);
 
-    // 表頭右欄（依視圖動態生成時間刻度）
+    // 表頭右欄
     var headerRight = makeCell("right header-right", "");
     if (hasScale){
       renderTimelineTicks(headerRight, minDate, maxDate, totalMs, totalDays, dayWidth);
@@ -778,10 +764,8 @@
     flatList.forEach(function(item){
       var node = item.node;
 
-      // 左側階層欄（頂層有橫線，子層無橫線）
       grid.appendChild(buildLeftCell(item));
 
-      // 右側時間軸甘特色塊
       var cellRight = makeCell("right", "");
       cellRight.dataset.nodeId = node.id;
 
@@ -794,7 +778,7 @@
           var leftPx = ((ps - minDate.getTime()) / (24 * 3600 * 1000)) * dayWidth;
           var widthPx = Math.max((((pe - ps) / (24 * 3600 * 1000)) + 1) * dayWidth, 14);
 
-          // 功能 A：里程碑 ◆ 渲染
+          // 里程碑 ◆ 渲染
           if (node.category === "milestone" || node.start_date === node.end_date){
             var stone = document.createElement("div");
             stone.className = "gantt-milestone";
@@ -805,7 +789,7 @@
             stone.onclick = function(){ openDrawer(node); highlightPair(node.id); };
             cellRight.appendChild(stone);
           } else {
-            // 方案 1 + 3：甘特長條色塊（進度填充 + 雙端排版）
+            // 甘特長條色塊（進度填充 + 雙端排版）
             var bar = document.createElement("div");
             bar.className = "gantt-bar mono";
             bar.dataset.nodeId = node.id;
@@ -813,13 +797,11 @@
             bar.style.width = widthPx + "px";
             bar.style.background = "var(" + (STATUS_VAR[node.status] || "--st-planned") + ")";
 
-            // 底層進度暗色覆蓋條
             var fill = document.createElement("div");
             fill.className = "gantt-progress-fill";
             fill.style.width = Math.min(100, Math.max(0, node.progress || 0)) + "%";
             bar.appendChild(fill);
 
-            // 雙端排版文字
             var content = document.createElement("div");
             content.className = "gantt-bar-content";
             
@@ -828,7 +810,6 @@
             leftText.innerHTML = escapeHtml(node.topic) + (node.progress ? " <span style='font-size:10px; opacity:0.85;'>(" + node.progress + "%)</span>" : "");
             content.appendChild(leftText);
 
-            // 當長度充足時顯示右端總工期
             if (widthPx >= 75){
               var rightText = document.createElement("span");
               rightText.className = "gantt-bar-right";
@@ -837,7 +818,6 @@
             }
             bar.appendChild(content);
 
-            // 功能 C：左/右伸縮調整手把 (Resize Handles)
             var handleL = document.createElement("div");
             handleL.className = "resize-handle left";
             var handleR = document.createElement("div");
@@ -845,7 +825,6 @@
             bar.appendChild(handleL);
             bar.appendChild(handleR);
 
-            // 綁定拖曳與點擊
             bindBarDragAndResize(bar, node, dayWidth, minDate);
             bar.onclick = function(e){
               if (bar.dataset.dragged === "true") return;
@@ -860,7 +839,6 @@
       grid.appendChild(cellRight);
     });
 
-    // 「今天」標記紅線
     if (hasScale){
       var today = new Date();
       if (today >= minDate && today <= maxDate){
@@ -870,7 +848,6 @@
 
     renderLegend();
 
-    // 功能 D：非同步繪製前置任務相依連線
     requestAnimationFrame(function(){
       drawDependencies(flatList);
     });
@@ -883,14 +860,12 @@
     return d;
   }
 
-  // ---------- 時間軸刻度動態生成 (週 / 月 / 季) ----------
   function renderTimelineTicks(container, minDate, maxDate, totalMs, totalDays, dayWidth){
     var cursor = new Date(minDate.getFullYear(), minDate.getMonth(), minDate.getDate());
 
     if (viewMode === "week"){
-      // 週視圖：每週一標示日期
       while (cursor <= maxDate){
-        if (cursor.getDay() === 1){ // 週一
+        if (cursor.getDay() === 1){
           var curDays = (cursor.getTime() - minDate.getTime()) / (24 * 3600 * 1000);
           var tick = document.createElement("div");
           tick.className = "time-tick mono";
@@ -901,7 +876,6 @@
         cursor = addDays(cursor, 1);
       }
     } else if (viewMode === "quarter"){
-      // 季視圖：標示 Q1~Q4 及年份
       while (cursor <= maxDate){
         var m = cursor.getMonth();
         if (cursor.getDate() === 1 && (m % 3 === 0)){
@@ -916,7 +890,6 @@
         cursor = addDays(cursor, 1);
       }
     } else {
-      // 月視圖 (預設)：每月 1 號標示，跨年或首月附帶年份
       var isFirst = true;
       while (cursor <= maxDate){
         if (cursor.getDate() === 1){
@@ -966,13 +939,11 @@
     grid.appendChild(line);
   }
 
-  // ---------- 左側節點欄（頂層橫線、子層無橫線） ----------
   function buildLeftCell(item){
     var node = item.node;
     var depth = item.depth;
     var parentFlags = item.parentLineFlags || [];
 
-    // depth === 0 加上 root-row (保留橫線)，其餘加上 child-row (去除橫線)
     var cell = makeCell("left " + (depth === 0 ? "root-row" : "child-row"), "");
 
     var row = document.createElement("div");
@@ -1018,7 +989,6 @@
     wrap.onclick = function(){ openDrawer(node); highlightPair(node.id); };
     row.appendChild(wrap);
 
-    // 檢查是否有填寫詳細資訊
     var d = node.details || {};
     var p = (d.params || "").trim();
     var m = (d.metrics || "").trim();
@@ -1039,7 +1009,6 @@
       row.appendChild(toggleBtn);
     }
 
-    // 操作按鈕組
     var actions = document.createElement("span");
     actions.className = "row-actions";
     
@@ -1070,7 +1039,6 @@
     row.appendChild(actions);
     cell.appendChild(row);
 
-    // 展開卡片渲染（僅輸出有內容的項目）
     if (hasAnyDetails && expandedDetails[node.id]){
       var card = document.createElement("div");
       card.className = "node-details-card open";
@@ -1089,11 +1057,11 @@
     return cell;
   }
 
-  // ---------- 功能 C：滑鼠拖曳移動與拉伸工期核心機制 ----------
+  // ---------- 拖曳移動與邊緣縮放 ----------
   function bindBarDragAndResize(bar, node, dayWidth, minDate){
     var startX, origStartMs, origEndMs;
     var isDragging = false;
-    var dragMode = null; // "move" | "resize-left" | "resize-right"
+    var dragMode = null;
 
     function onMouseDown(e){
       if (e.target.classList.contains("resize-handle")){
@@ -1139,7 +1107,6 @@
         }
       }
 
-      // 即時反應位置
       var curStartMs = new Date(node.start_date).getTime();
       var curEndMs = new Date(node.end_date).getTime();
       var curLeft = ((curStartMs - minDate.getTime()) / (24 * 3600 * 1000)) * dayWidth;
@@ -1164,10 +1131,9 @@
     bar.addEventListener("mousedown", onMouseDown);
   }
 
-  // ---------- 功能 D：前置任務相依連線 (SVG Curved Lines) ----------
+  // ---------- 前置任務相依連線 ----------
   function drawDependencies(flatList){
     var svg = document.getElementById("dependency-svg");
-    // 清除舊線條 (保留 defs)
     var paths = svg.querySelectorAll("path.dep-line");
     paths.forEach(function(p){ p.remove(); });
 
@@ -1189,16 +1155,13 @@
       var r1 = fromEl.getBoundingClientRect();
       var r2 = toEl.getBoundingClientRect();
 
-      // 出發點 (前置任務右中) 與 到達點 (當前任務左中)
       var x1 = r1.right - gridRect.left;
       var y1 = r1.top + (r1.height / 2) - gridRect.top;
       var x2 = r2.left - gridRect.left;
       var y2 = r2.top + (r2.height / 2) - gridRect.top;
 
-      // 檢查是否衝突 (前置任務結束晚於當前任務開始)
       var isConflict = new Date(predNode.end_date).getTime() > new Date(node.start_date).getTime();
 
-      // 繪製滑順的 S 型貝茲曲線
       var dx = Math.max(20, Math.abs(x2 - x1) * 0.4);
       var dStr = "M " + x1 + " " + y1 + " C " + (x1 + dx) + " " + y1 + ", " + (x2 - dx) + " " + y2 + ", " + x2 + " " + y2;
 
@@ -1216,7 +1179,6 @@
     });
   }
 
-  // ---------- 排序與高亮 ----------
   function moveNodeOrder(nodeId, direction){
     var idx = state.nodes.findIndex(function(n){ return n.id === nodeId; });
     if (idx === -1) return;
@@ -1287,7 +1249,6 @@
       details: { params: "", metrics: "", notes: "" }
     };
 
-    // 上層項目下拉
     var select = document.getElementById("fParentSelect");
     select.innerHTML = '<option value="root">最上層主幹 (Root)</option>';
     state.nodes.forEach(function(n){
@@ -1299,11 +1260,12 @@
     });
     select.value = editingNode.parent_id || "root";
 
-    // 前置任務下拉選單
+    // 方案 A：前置任務選單過濾掉系統主幹 (system)
     var depSelect = document.getElementById("fDependencySelect");
     depSelect.innerHTML = '<option value="">無相依任務</option>';
     state.nodes.forEach(function(n){
       if (editingNode && n.id === editingNode.id) return;
+      if (n.category === "system") return; // 豁免主幹，不作為前置任務
       var opt = document.createElement("option");
       opt.value = n.id;
       opt.textContent = n.topic + " (" + (n.end_date || "無日期") + ")";
@@ -1373,7 +1335,6 @@
 
   document.getElementById("btnAddRoot").onclick = function(){ openDrawer(null, "root"); };
 
-  // ---------- 標題與欄位編輯 ----------
   function promptEditProjectTitle(){
     var newTitle = prompt("請輸入專案名稱：", state.project || "");
     if (newTitle !== null && newTitle.trim() !== ""){
@@ -1395,16 +1356,37 @@
     }
   }
 
-  // ---------- 匯出 PPT 簡報圖 (PNG) ----------
+  // ---------- 全視圖 PNG 完整截圖修正機制 ----------
   document.getElementById("btnExportImage").onclick = function(){
     var target = document.getElementById("captureTarget");
+    var wrap = document.getElementById("roadmapWrap");
+    var grid = document.getElementById("roadmapGrid");
     var isDark = document.documentElement.getAttribute("data-theme") === "dark";
     var bgColor = isDark ? "#0F2A3A" : "#E7ECEA";
+
+    // 暫存原始樣式與設定
+    var origWrapOverflow = wrap.style.overflow;
+    var origTargetWidth = target.style.width;
+    var origGridWidth = grid.style.width;
+
+    // 計算整個時間軸的真實完整像素寬度
+    var fullWidth = Math.max(grid.scrollWidth, wrap.scrollWidth, grid.offsetWidth);
+
+    // 強制展開外層寬度，確保 html2canvas 完整抓取無裁切
+    wrap.style.overflow = "visible";
+    target.style.width = fullWidth + "px";
+    grid.style.width = fullWidth + "px";
+
+    var svg = document.getElementById("dependency-svg");
+    svg.setAttribute("width", fullWidth);
+    svg.setAttribute("height", grid.scrollHeight);
 
     html2canvas(target, {
       scale: 2,
       backgroundColor: bgColor,
-      useCORS: true
+      useCORS: true,
+      width: fullWidth,
+      windowWidth: fullWidth
     }).then(function(canvas){
       var a = document.createElement("a");
       a.download = (state.project || "材料研發進度圖") + ".png";
@@ -1414,6 +1396,13 @@
       document.body.removeChild(a);
     }).catch(function(err){
       alert("截圖產生失敗：" + err.message);
+    }).finally(function(){
+      // 截圖結束後立即無縫還原
+      wrap.style.overflow = origWrapOverflow;
+      target.style.width = origTargetWidth;
+      grid.style.width = origGridWidth;
+      svg.removeAttribute("width");
+      svg.removeAttribute("height");
     });
   };
 
