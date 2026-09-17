@@ -76,7 +76,7 @@
   .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
 
   header {
-    position: sticky; top: 0; z-index: 20;
+    position: sticky; top: 0; z-index: 30;
     display: flex; align-items: center; justify-content: space-between;
     gap: 12px; flex-wrap: wrap;
     padding: 12px 24px;
@@ -112,19 +112,13 @@
     overflow: hidden;
   }
   .view-mode-group button {
-    border: none;
-    border-radius: 0;
-    padding: 5px 10px;
-    background: transparent;
-    font-size: 12px;
+    border: none; border-radius: 0; padding: 5px 10px; background: transparent; font-size: 12px;
   }
   .view-mode-group button.active {
-    background: var(--accent);
-    color: var(--surface-2);
-    font-weight: 600;
+    background: var(--accent); color: var(--surface-2); font-weight: 600;
   }
 
-  main { padding: 18px; max-width: 1680px; margin: 0 auto; }
+  main { padding: 18px; max-width: 1720px; margin: 0 auto; }
 
   section.panel {
     background: var(--panel-bg);
@@ -150,11 +144,16 @@
     min-height: 48px;
   }
   
+  /* Excel 凍結窗格：左側欄位固定在畫面左端 */
   .cell.left {
+    position: sticky;
+    left: 0;
+    z-index: 15;
+    background: var(--surface);
     padding: 6px 12px 6px 6px;
     flex-direction: column;
     justify-content: center;
-    position: relative;
+    box-shadow: 3px 0 8px rgba(0,0,0,0.06);
   }
   .cell.left.root-row {
     border-top: 1px solid var(--line);
@@ -163,18 +162,15 @@
     border-top: none !important;
   }
 
-  .cell.right {
-    position: relative;
-    overflow: visible;
-    align-items: center;
-    border-top: 1px solid var(--line);
-  }
-  .roadmap-grid > .cell:nth-child(-n+2) { border-top: none !important; }
-
   .cell.header-left {
+    position: sticky;
+    left: 0;
+    z-index: 20;
+    background: var(--surface);
     display: flex; align-items: center;
     padding-left: 6px; padding-right: 14px;
     border-top: none !important;
+    box-shadow: 3px 0 8px rgba(0,0,0,0.06);
   }
   .column-title-box {
     display: inline-flex;
@@ -184,13 +180,17 @@
     padding-left: 8px;
   }
   .column-title-text {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--ink);
-    cursor: pointer;
-    letter-spacing: 0.3px;
+    font-size: 15px; font-weight: 600; color: var(--ink); cursor: pointer; letter-spacing: 0.3px;
   }
   .column-title-text:hover { color: var(--accent); }
+
+  .cell.right {
+    position: relative;
+    overflow: visible;
+    align-items: center;
+    border-top: 1px solid var(--line);
+  }
+  .roadmap-grid > .cell:nth-child(-n+2) { border-top: none !important; }
 
   .cell.header-right {
     min-height: 36px;
@@ -201,56 +201,35 @@
   }
 
   .node-row {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    width: 100%;
-    position: relative;
+    display: flex; align-items: center; gap: 6px; width: 100%; position: relative;
   }
 
-  /* 父子階層引線 */
+  /* 折疊展開切換按鈕 */
+  .collapse-btn {
+    border: none; background: transparent; padding: 2px 5px;
+    font-size: 11px; cursor: pointer; color: var(--ink-dim); border-radius: 4px;
+    transition: transform 0.15s ease, color 0.15s ease;
+  }
+  .collapse-btn:hover { color: var(--accent); background: rgba(0,0,0,0.04); }
+
+  /* 樹狀階層引線 */
   .tree-indent-wrap {
-    display: inline-flex;
-    align-items: center;
-    height: 36px;
-    flex: none;
+    display: inline-flex; align-items: center; height: 36px; flex: none;
   }
   .tree-unit {
-    width: 22px;
-    height: 100%;
-    position: relative;
-    flex: none;
+    width: 22px; height: 100%; position: relative; flex: none;
   }
   .tree-unit.line::before {
-    content: "";
-    position: absolute;
-    top: -14px;
-    bottom: -14px;
-    left: 10px;
-    width: 2px;
-    background: var(--accent);
-    opacity: 0.8;
+    content: ""; position: absolute; top: -14px; bottom: -14px; left: 10px; width: 2px;
+    background: var(--accent); opacity: 0.8;
   }
   .tree-unit.branch::before {
-    content: "";
-    position: absolute;
-    top: -14px;
-    height: calc(50% + 14px);
-    left: 10px;
-    width: 2px;
-    background: var(--accent);
-    opacity: 0.8;
+    content: ""; position: absolute; top: -14px; height: calc(50% + 14px); left: 10px; width: 2px;
+    background: var(--accent); opacity: 0.8;
   }
   .tree-unit.branch::after {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: 10px;
-    width: 12px;
-    height: 2px;
-    background: var(--accent);
-    opacity: 0.8;
-    transform: translateY(-50%);
+    content: ""; position: absolute; top: 50%; left: 10px; width: 12px; height: 2px;
+    background: var(--accent); opacity: 0.8; transform: translateY(-50%);
   }
 
   .node {
@@ -258,8 +237,7 @@
     background: var(--surface-2); border: 1px solid var(--line);
     border-radius: 7px; padding: 5px 10px;
     cursor: pointer; max-width: 100%;
-    box-shadow: var(--shadow);
-    overflow: hidden;
+    box-shadow: var(--shadow); overflow: hidden;
   }
   .node:hover { border-color: var(--accent); }
   .node.system-node { font-weight: 600; border-width: 1.5px; }
@@ -275,15 +253,9 @@
   .cell.left:hover .row-actions { display: inline-flex; }
 
   .node-details-card {
-    margin-top: 6px;
-    padding: 8px 12px;
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-left: 3px solid var(--accent);
-    border-radius: 6px;
-    font-size: 12px;
-    line-height: 1.6;
-    display: none;
+    margin-top: 6px; padding: 8px 12px; background: var(--surface);
+    border: 1px solid var(--line); border-left: 3px solid var(--accent);
+    border-radius: 6px; font-size: 12px; line-height: 1.6; display: none;
     box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
   }
   .node-details-card.open { display: block; }
@@ -296,80 +268,66 @@
     position: absolute; height: 26px; border-radius: 5px;
     color: #ffffff; cursor: move; border: 1px solid rgba(0,0,0,0.18);
     box-shadow: 0 1px 3px rgba(0,0,0,0.12);
-    overflow: hidden; user-select: none;
-    display: flex; align-items: center;
+    overflow: hidden; user-select: none; display: flex; align-items: center;
+    z-index: 4;
   }
   .gantt-bar.highlight { outline: 2px solid var(--ink); outline-offset: 1px; }
 
   .gantt-progress-fill {
     position: absolute; top: 0; left: 0; bottom: 0;
-    background: rgba(0, 0, 0, 0.22);
-    pointer-events: none;
-    transition: width .2s ease;
+    background: rgba(0, 0, 0, 0.22); pointer-events: none; transition: width .2s ease;
   }
 
   .gantt-bar-content {
-    position: relative; z-index: 2;
-    display: flex; justify-content: space-between; align-items: center;
-    width: 100%; height: 100%; padding: 0 8px;
-    pointer-events: none; font-size: 11px; white-space: nowrap;
+    position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: center;
+    width: 100%; height: 100%; padding: 0 8px; pointer-events: none; font-size: 11px; white-space: nowrap;
   }
   .gantt-bar-left {
-    display: flex; align-items: center; gap: 5px;
-    overflow: hidden; text-overflow: ellipsis;
+    display: flex; align-items: center; gap: 5px; overflow: hidden; text-overflow: ellipsis;
   }
   .gantt-bar-right {
     font-size: 10px; opacity: 0.85; margin-left: 8px;
   }
 
   .resize-handle {
-    position: absolute; top: 0; bottom: 0; width: 6px;
-    cursor: col-resize; z-index: 3;
+    position: absolute; top: 0; bottom: 0; width: 6px; cursor: col-resize; z-index: 5;
   }
   .resize-handle.left { left: 0; }
   .resize-handle.right { right: 0; }
   .resize-handle:hover { background: rgba(255,255,255,0.4); }
 
-  /* 里程碑樣式 */
+  /* 里程碑標籤 */
   .gantt-milestone-wrap {
-    position: absolute;
-    height: 26px;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    z-index: 4;
-    user-select: none;
-    white-space: nowrap;
+    position: absolute; height: 26px; display: flex; align-items: center;
+    cursor: pointer; z-index: 6; user-select: none; white-space: nowrap;
   }
   .gantt-milestone-diamond {
-    width: 14px;
-    height: 14px;
-    transform: rotate(45deg);
-    border-radius: 2px;
-    border: 1px solid rgba(0,0,0,0.25);
-    box-shadow: 0 1px 4px rgba(0,0,0,0.18);
-    flex: none;
+    width: 14px; height: 14px; transform: rotate(45deg); border-radius: 2px;
+    border: 1px solid rgba(0,0,0,0.25); box-shadow: 0 1px 4px rgba(0,0,0,0.18); flex: none;
     transition: transform 0.15s ease;
   }
-  .gantt-milestone-wrap:hover .gantt-milestone-diamond {
-    transform: rotate(45deg) scale(1.15);
-  }
+  .gantt-milestone-wrap:hover .gantt-milestone-diamond { transform: rotate(45deg) scale(1.15); }
   .gantt-milestone-label {
-    margin-left: 8px;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--ink);
-    letter-spacing: 0.2px;
-    opacity: 0.9;
+    margin-left: 8px; font-size: 11px; font-weight: 600; color: var(--ink); letter-spacing: 0.2px; opacity: 0.9;
   }
-  .gantt-milestone-wrap.highlight .gantt-milestone-diamond {
-    outline: 2px solid var(--ink);
-    outline-offset: 2px;
+  .gantt-milestone-wrap.highlight .gantt-milestone-diamond { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+  /* Tom's Planner 功能 2：垂直時間區間背景遮罩 (Time Bands) */
+  .time-band-overlay {
+    position: absolute; top: 0; bottom: 0; pointer-events: none; z-index: 2;
+    background: rgba(201, 127, 30, 0.08);
+    border-left: 1.5px dashed rgba(201, 127, 30, 0.4);
+    border-right: 1.5px dashed rgba(201, 127, 30, 0.4);
+  }
+  .time-band-tag {
+    position: absolute; top: 2px; left: 4px; font-size: 10px; font-weight: 600;
+    color: var(--ink); background: var(--surface-2); padding: 1px 6px; border-radius: 3px;
+    border: 1px solid var(--line-strong); white-space: nowrap; pointer-events: auto; cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
   }
 
   #dependency-svg {
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    pointer-events: none; z-index: 5;
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 8;
   }
 
   .time-tick {
@@ -381,7 +339,7 @@
     position: absolute; top: 0; bottom: 0; width: 1px; background: var(--line); pointer-events: none;
   }
   .today-line {
-    position: absolute; top: 0; bottom: 0; width: 1.5px; background: var(--danger); z-index: 6; pointer-events: none;
+    position: absolute; top: 0; bottom: 0; width: 1.5px; background: var(--danger); z-index: 9; pointer-events: none;
   }
   .today-line .lbl {
     position: absolute; top: 2px; left: 4px; font-size: 10px; color: var(--danger);
@@ -397,15 +355,15 @@
   }
 
   .overlay {
-    position: fixed; inset: 0; background: rgba(10,20,26,0.35);
-    opacity: 0; pointer-events: none; transition: opacity .18s ease; z-index: 30;
+    position: fixed; inset: 0; background: rgba(10,20,26,0.35); opacity: 0; pointer-events: none;
+    transition: opacity .18s ease; z-index: 40;
   }
   .overlay.open { opacity: 1; pointer-events: auto; }
   .drawer {
     position: fixed; top: 0; right: 0; height: 100%; width: min(460px, 94vw);
     background: var(--surface-2); border-left: 1px solid var(--line);
     transform: translateX(100%); transition: transform .2s ease;
-    z-index: 31; padding: 24px; overflow-y: auto;
+    z-index: 41; padding: 24px; overflow-y: auto;
   }
   .drawer.open { transform: translateX(0); }
   .drawer h3 { margin: 0 0 16px 0; font-size: 15px; }
@@ -413,21 +371,21 @@
   .field label { display: block; font-size: 12px; color: var(--ink-dim); margin-bottom: 5px; }
   .field input, .field select, .field textarea {
     width: 100%; font: inherit; font-size: 13px; padding: 8px 9px;
-    border: 1px solid var(--line-strong); border-radius: 6px;
-    background: var(--surface); color: var(--ink);
+    border: 1px solid var(--line-strong); border-radius: 6px; background: var(--surface); color: var(--ink);
   }
   .field textarea { min-height: 60px; resize: vertical; }
   .drawer-actions { display: flex; justify-content: space-between; gap: 8px; margin-top: 20px; }
   .row { display: flex; gap: 10px; }
   .row .field { flex: 1; }
 
-  #jsonModal {
+  /* 彈出對話框通用樣式 */
+  .modal-dialog {
     display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    width: min(720px, 90vw); background: var(--surface-2); border: 1px solid var(--line-strong);
-    border-radius: 8px; z-index: 40; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    width: min(720px, 92vw); background: var(--surface-2); border: 1px solid var(--line-strong);
+    border-radius: 8px; z-index: 45; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.25);
   }
-  #jsonModal textarea {
-    width: 100%; height: 350px; font-family: "IBM Plex Mono", monospace; font-size: 12px;
+  .modal-dialog textarea {
+    width: 100%; height: 320px; font-family: "IBM Plex Mono", monospace; font-size: 12px;
     background: var(--surface); color: var(--ink); border: 1px solid var(--line); padding: 10px; border-radius: 6px;
   }
 
@@ -443,7 +401,7 @@
       <h1 id="projectTitle" title="點擊修改專案名稱">新材料研發專案</h1>
       <button class="icon small ghost" id="btnEditTitle" title="修改專案名稱">✎</button>
     </div>
-    <div class="sub" id="projectMeta">最後更新: - ｜ 可滑鼠直接拖曳色塊或兩側手把調控工期</div>
+    <div class="sub" id="projectMeta">最後更新: - ｜ 左側欄位已鎖定凍結，支援群組一鍵折疊</div>
   </div>
   <div class="toolbar">
     <div class="view-mode-group">
@@ -451,6 +409,7 @@
       <button id="vm-month" class="active" onclick="switchViewMode('month')">月視圖</button>
       <button id="vm-quarter" onclick="switchViewMode('quarter')">季視圖</button>
     </div>
+    <button class="small" id="btnTimeBands" title="標記重點衝刺期或設備歲修">📅 時段遮罩</button>
     <button class="ghost small" id="btnTheme" title="切換主題">◐ 主題</button>
     <button class="small" id="btnExportImage" title="匯出高畫質圖片至 PPT">📷 匯出簡報圖 (PNG)</button>
     <button class="small" id="btnEditJson">檢視/貼上 JSON</button>
@@ -482,7 +441,7 @@
 </main>
 
 <footer>
-  單一 HTML 檔案，支援部署於 GitHub Pages；色塊支援直接按住拖動與邊緣縮放。
+  單一 HTML 檔案，支援部署於 GitHub Pages；左側欄位橫向滾動自動釘選，長條支援拖曳拉伸。
 </footer>
 
 <!-- 編輯抽屜 (Drawer) -->
@@ -564,8 +523,34 @@
   </form>
 </div>
 
+<!-- 時段遮罩管理對話框 (Tom's Planner 功能 2) -->
+<div class="modal-dialog" id="timeBandModal" style="max-width: 500px;">
+  <h3 style="margin-bottom:12px; font-size:15px;">📅 管理垂直時段遮罩 (Time Bands)</h3>
+  <div id="timeBandList" style="max-height: 200px; overflow-y:auto; margin-bottom: 15px;"></div>
+  <form id="timeBandForm" style="border-top: 1px solid var(--line); padding-top: 12px;">
+    <div class="field">
+      <label>遮罩標籤 (例如: 歲修 / 衝刺送樣期)</label>
+      <input type="text" id="tbName" required>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>起始日期</label>
+        <input type="date" id="tbStart" required>
+      </div>
+      <div class="field">
+        <label>結束日期</label>
+        <input type="date" id="tbEnd" required>
+      </div>
+    </div>
+    <div style="display:flex; justify-content: flex-end; gap:8px; margin-top:12px;">
+      <button type="button" class="ghost small" onclick="closeTimeBandModal()">關閉</button>
+      <button type="submit" class="primary small">新增此時段遮罩</button>
+    </div>
+  </form>
+</div>
+
 <!-- JSON 編輯與貼上對話框 -->
-<div id="jsonModal">
+<div class="modal-dialog" id="jsonModal">
   <h3 style="margin-bottom:12px; font-size:15px;">直接編輯 / 貼上 Core Schema JSON</h3>
   <textarea id="jsonRawText" spellcheck="false"></textarea>
   <div style="display:flex; justify-content: flex-end; gap:8px; margin-top:12px;">
@@ -578,7 +563,7 @@
 (function(){
   "use strict";
 
-  var STORAGE_KEY = "material-core-schema-clickup-v4";
+  var STORAGE_KEY = "material-core-schema-clickup-v5";
   var STATUS_LABEL = { planned:"規劃中", in_progress:"研發中", validating:"驗證中", completed:"已完成", blocked:"暫停/瓶頸" };
   var STATUS_VAR = { planned:"--st-planned", in_progress:"--st-in_progress", validating:"--st-validating", completed:"--st-completed", blocked:"--st-blocked" };
 
@@ -589,6 +574,7 @@
       "project": "新材料研發專案",
       "column_title": "材料架構 / 實驗階段",
       "view_mode": "month",
+      "time_bands": [], // 垂直時間遮罩陣列
       "updated_at": new Date().toISOString().split("T")[0],
       "nodes": []
     };
@@ -596,6 +582,7 @@
 
   var state = null;
   var expandedDetails = {}; 
+  var collapsedGroups = {}; // 追蹤各主幹是否收合折疊 (Tom's Planner 功能 1)
   var viewMode = "month";
 
   function loadState(){
@@ -605,6 +592,7 @@
     } catch(e){}
     if (!state) state = seedData();
     if (!state.column_title) state.column_title = "材料架構 / 實驗階段";
+    if (!state.time_bands) state.time_bands = [];
     if (state.view_mode) viewMode = state.view_mode;
     updateViewModeButtons();
     renderAll();
@@ -665,7 +653,7 @@
     return 4.5;
   }
 
-  // ---------- 階層樹狀平坦化處理 (修復主幹之間互相連線的 Bug) ----------
+  // ---------- 階層樹狀平坦化處理 (含折疊收合過濾) ----------
   function getFlattenedNodes(nodes){
     var result = [];
     var childrenMap = {};
@@ -675,44 +663,49 @@
       childrenMap[pid].push(n);
     });
 
-    function traverse(pid, depth, parentLineFlags){
+    function traverse(pid, depth, parentLineFlags, isAncestorCollapsed){
       var list = childrenMap[pid] || [];
       list.forEach(function(node, idx){
         var isLast = (idx === list.length - 1);
-        
-        result.push({
-          node: node,
-          depth: depth,
-          isLast: isLast,
-          parentLineFlags: parentLineFlags
-        });
+        var hasChildren = (childrenMap[node.id] && childrenMap[node.id].length > 0);
 
-        // 關鍵修復：
-        // 當前節點若是系統主幹 (depth === 0)，其子項目 (depth === 1) 不需要帶入任何上層垂直線
-        // 僅當 depth >= 1 時，才記錄該子階段是否有後續兄弟節點 (!isLast)，確保主幹與主幹之間互不連線
+        if (!isAncestorCollapsed){
+          result.push({
+            node: node,
+            depth: depth,
+            isLast: isLast,
+            hasChildren: hasChildren,
+            parentLineFlags: parentLineFlags
+          });
+        }
+
         var nextFlags = parentLineFlags.slice();
         if (depth >= 1) {
           nextFlags.push(!isLast);
         }
-        
-        traverse(node.id, depth + 1, nextFlags);
+
+        // 若當前節點已被收合，其所有子後代標記為隱藏
+        var willCollapseChildren = isAncestorCollapsed || !!collapsedGroups[node.id];
+        traverse(node.id, depth + 1, nextFlags, willCollapseChildren);
       });
     }
-    traverse("root", 0, []);
+    traverse("root", 0, [], false);
 
     var visited = {};
     result.forEach(function(r){ visited[r.node.id] = true; });
     nodes.forEach(function(n){
-      if (!visited[n.id]) result.push({ node: n, depth: 0, isLast: true, parentLineFlags: [] });
+      if (!visited[n.id] && (!n.parent_id || n.parent_id === "root")) {
+        result.push({ node: n, depth: 0, isLast: true, hasChildren: false, parentLineFlags: [] });
+      }
     });
 
     return result;
   }
 
-  // ---------- 主要繪製邏輯 ----------
+  // ---------- 核心繪製邏輯 ----------
   function renderAll(){
     document.getElementById("projectTitle").textContent = state.project || "新材料研發專案";
-    document.getElementById("projectMeta").textContent = "最後更新: " + (state.updated_at || "-") + " ｜ 可直接拖曳色塊調整日期或拉動邊緣調整工期";
+    document.getElementById("projectMeta").textContent = "最後更新: " + (state.updated_at || "-") + " ｜ 左側欄位已鎖定凍結，支援群組一鍵折疊";
 
     var grid = document.getElementById("roadmapGrid");
     var svgLayer = document.getElementById("dependency-svg");
@@ -746,7 +739,7 @@
       grid.style.minWidth = "1000px";
     }
 
-    // 1. 表頭左欄
+    // 1. 表頭左欄 (凍結固定)
     var headerLeft = makeCell("left header-left", "");
     var titleBox = document.createElement("div");
     titleBox.className = "column-title-box";
@@ -772,6 +765,7 @@
     var headerRight = makeCell("right header-right", "");
     if (hasScale){
       renderTimelineTicks(headerRight, minDate, maxDate, totalMs, totalDays, dayWidth);
+      renderTimeBands(headerRight, minDate, maxDate, totalMs, dayWidth, true);
     }
     grid.appendChild(headerRight);
 
@@ -793,6 +787,7 @@
 
       if (hasScale){
         addGridlines(cellRight, minDate, maxDate, totalMs);
+        renderTimeBands(cellRight, minDate, maxDate, totalMs, dayWidth, false);
 
         if (node.start_date && node.end_date){
           var ps = new Date(node.start_date).getTime();
@@ -800,7 +795,7 @@
           var leftPx = ((ps - minDate.getTime()) / (24 * 3600 * 1000)) * dayWidth;
           var widthPx = Math.max((((pe - ps) / (24 * 3600 * 1000)) + 1) * dayWidth, 14);
 
-          // 里程碑 ◆ 渲染（右側附帶文字標籤）
+          // 里程碑 ◆ 渲染
           if (node.category === "milestone" || node.start_date === node.end_date){
             var stoneWrap = document.createElement("div");
             stoneWrap.className = "gantt-milestone-wrap mono";
@@ -821,7 +816,7 @@
             stoneWrap.onclick = function(){ openDrawer(node); highlightPair(node.id); };
             cellRight.appendChild(stoneWrap);
           } else {
-            // 甘特長條色塊（進度填充 + 雙端排版）
+            // 甘特長條色塊 (方案 1 + 3)
             var bar = document.createElement("div");
             bar.className = "gantt-bar mono";
             bar.dataset.nodeId = node.id;
@@ -890,6 +885,42 @@
     d.className = "cell " + cls;
     if (text) d.textContent = text;
     return d;
+  }
+
+  // ---------- Tom's Planner 功能 2：垂直時間區間背景遮罩 (Time Bands) ----------
+  function renderTimeBands(container, minDate, maxDate, totalMs, dayWidth, isHeader){
+    if (!state.time_bands || !state.time_bands.length) return;
+
+    state.time_bands.forEach(function(tb){
+      if (!tb.start || !tb.end) return;
+      var sMs = new Date(tb.start).getTime();
+      var eMs = new Date(tb.end).getTime();
+      if (eMs < minDate.getTime() || sMs > maxDate.getTime()) return;
+
+      var sClamp = Math.max(sMs, minDate.getTime());
+      var eClamp = Math.min(eMs, maxDate.getTime());
+
+      var leftDays = (sClamp - minDate.getTime()) / (24 * 3600 * 1000);
+      var spanDays = ((eClamp - sClamp) / (24 * 3600 * 1000)) + 1;
+
+      var leftPx = leftDays * dayWidth;
+      var widthPx = spanDays * dayWidth;
+
+      var band = document.createElement("div");
+      band.className = "time-band-overlay";
+      band.style.left = leftPx + "px";
+      band.style.width = widthPx + "px";
+
+      if (isHeader){
+        var tag = document.createElement("div");
+        tag.className = "time-band-tag mono";
+        tag.textContent = "📌 " + tb.name;
+        tag.title = tb.name + " (" + tb.start + " ~ " + tb.end + ") 點擊編輯/刪除";
+        tag.onclick = openTimeBandModal;
+        band.appendChild(tag);
+      }
+      container.appendChild(band);
+    });
   }
 
   function renderTimelineTicks(container, minDate, maxDate, totalMs, totalDays, dayWidth){
@@ -971,15 +1002,31 @@
     grid.appendChild(line);
   }
 
+  // ---------- 左側欄位建置 (含 Excel 凍結與群組折疊) ----------
   function buildLeftCell(item){
     var node = item.node;
     var depth = item.depth;
     var parentFlags = item.parentLineFlags || [];
+    var hasChildren = item.hasChildren;
 
     var cell = makeCell("left " + (depth === 0 ? "root-row" : "child-row"), "");
 
     var row = document.createElement("div");
     row.className = "node-row";
+
+    // Tom's Planner 功能 1：主幹或母項目的折疊按鈕
+    if (hasChildren){
+      var collapseBtn = document.createElement("button");
+      collapseBtn.className = "collapse-btn mono";
+      collapseBtn.textContent = collapsedGroups[node.id] ? "▶" : "▼";
+      collapseBtn.title = collapsedGroups[node.id] ? "展開子階段" : "收合子階段";
+      collapseBtn.onclick = function(e){
+        e.stopPropagation();
+        collapsedGroups[node.id] = !collapsedGroups[node.id];
+        renderAll();
+      };
+      row.appendChild(collapseBtn);
+    }
 
     if (depth > 0){
       var indentWrap = document.createElement("div");
@@ -1385,7 +1432,59 @@
     }
   }
 
-  // ---------- 全視圖 PNG 完整截圖機制 ----------
+  // ---------- 時段遮罩管理 (Tom's Planner 功能 2) ----------
+  function openTimeBandModal(){
+    renderTimeBandList();
+    document.getElementById("overlay").classList.add("open");
+    document.getElementById("timeBandModal").style.display = "block";
+  }
+  window.closeTimeBandModal = function(){
+    document.getElementById("timeBandModal").style.display = "none";
+    document.getElementById("overlay").classList.remove("open");
+  };
+
+  function renderTimeBandList(){
+    var box = document.getElementById("timeBandList");
+    box.innerHTML = "";
+    if (!state.time_bands || !state.time_bands.length){
+      box.innerHTML = '<div style="font-size:12px; color:var(--ink-dim);">尚未設定任何時段遮罩。</div>';
+      return;
+    }
+    state.time_bands.forEach(function(tb, idx){
+      var row = document.createElement("div");
+      row.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px dashed var(--line); font-size:12px;";
+      row.innerHTML = '<span><strong>' + escapeHtml(tb.name) + '</strong> (' + tb.start + ' ~ ' + tb.end + ')</span>';
+      var delBtn = document.createElement("button");
+      delBtn.className = "icon small ghost"; delBtn.textContent = "✕";
+      delBtn.onclick = function(){
+        state.time_bands.splice(idx, 1);
+        saveState();
+        renderTimeBandList();
+        renderAll();
+      };
+      row.appendChild(delBtn);
+      box.appendChild(row);
+    });
+  }
+
+  document.getElementById("btnTimeBands").onclick = openTimeBandModal;
+
+  document.getElementById("timeBandForm").onsubmit = function(e){
+    e.preventDefault();
+    var name = document.getElementById("tbName").value.trim();
+    var start = document.getElementById("tbStart").value;
+    var end = document.getElementById("tbEnd").value;
+    if (!name || !start || !end) return;
+    state.time_bands.push({ id: uid(), name: name, start: start, end: end });
+    saveState();
+    renderTimeBandList();
+    renderAll();
+    document.getElementById("tbName").value = "";
+    document.getElementById("tbStart").value = "";
+    document.getElementById("tbEnd").value = "";
+  };
+
+  // ---------- 全視圖 PNG 完整截圖機制 (相容 Sticky 凍結窗格) ----------
   document.getElementById("btnExportImage").onclick = function(){
     var target = document.getElementById("captureTarget");
     var wrap = document.getElementById("roadmapWrap");
@@ -1412,7 +1511,9 @@
       backgroundColor: bgColor,
       useCORS: true,
       width: fullWidth,
-      windowWidth: fullWidth
+      windowWidth: fullWidth,
+      scrollX: 0,
+      scrollY: 0
     }).then(function(canvas){
       var a = document.createElement("a");
       a.download = (state.project || "材料研發進度圖") + ".png";
@@ -1445,6 +1546,7 @@
       }
       state = parsed;
       if (!state.column_title) state.column_title = "材料架構 / 實驗階段";
+      if (!state.time_bands) state.time_bands = [];
       saveState();
       renderAll();
       closeJsonModal();
@@ -1484,6 +1586,7 @@
         if (!json.nodes) throw new Error("缺少 nodes 節點資料");
         state = json;
         if (!state.column_title) state.column_title = "材料架構 / 實驗階段";
+        if (!state.time_bands) state.time_bands = [];
         saveState();
         renderAll();
         alert("匯入成功！");
