@@ -104,7 +104,6 @@
   button.small { padding: 3px 7px; font-size: 12px; border-radius: 5px; }
   button.icon { padding: 2px 6px; line-height: 1; }
 
-  /* 視圖切換按鈕群組 */
   .view-mode-group {
     display: flex;
     background: var(--surface);
@@ -151,7 +150,6 @@
     min-height: 48px;
   }
   
-  /* 左側格線控制：頂層有線，子階層無線 */
   .cell.left {
     padding: 6px 12px 6px 6px;
     flex-direction: column;
@@ -173,7 +171,6 @@
   }
   .roadmap-grid > .cell:nth-child(-n+2) { border-top: none !important; }
 
-  /* 左側欄位標題美化 */
   .cell.header-left {
     display: flex; align-items: center;
     padding-left: 6px; padding-right: 14px;
@@ -277,7 +274,6 @@
   .row-actions { display: none; gap: 3px; flex: none; margin-left: auto; }
   .cell.left:hover .row-actions { display: inline-flex; }
 
-  /* 展開卡片 */
   .node-details-card {
     margin-top: 6px;
     padding: 8px 12px;
@@ -295,7 +291,7 @@
   .detail-field:last-child { margin-bottom: 0; }
   .detail-field strong { color: var(--ink-dim); font-size: 11.5px; display: inline-block; width: 70px; }
 
-  /* 甘特圖色塊 (進度底色 + 雙端排版) */
+  /* 甘特圖色塊 */
   .gantt-bar {
     position: absolute; height: 26px; border-radius: 5px;
     color: #ffffff; cursor: move; border: 1px solid rgba(0,0,0,0.18);
@@ -334,7 +330,7 @@
   .resize-handle.right { right: 0; }
   .resize-handle:hover { background: rgba(255,255,255,0.4); }
 
-  /* 方案 A：關鍵里程碑包覆容器與右側文字標籤 */
+  /* 里程碑樣式 */
   .gantt-milestone-wrap {
     position: absolute;
     height: 26px;
@@ -371,13 +367,11 @@
     outline-offset: 2px;
   }
 
-  /* SVG 相依性圖層 */
   #dependency-svg {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     pointer-events: none; z-index: 5;
   }
 
-  /* 時間軸刻度與輔助線 */
   .time-tick {
     position: absolute; top: 0; bottom: 0; font-size: 11px; color: var(--ink-dim);
     border-left: 1px solid var(--line); padding-left: 5px; pointer-events: none;
@@ -402,7 +396,6 @@
     border: 1px dashed var(--line); border-radius: 8px;
   }
 
-  /* 抽屜 (Drawer) */
   .overlay {
     position: fixed; inset: 0; background: rgba(10,20,26,0.35);
     opacity: 0; pointer-events: none; transition: opacity .18s ease; z-index: 30;
@@ -428,7 +421,6 @@
   .row { display: flex; gap: 10px; }
   .row .field { flex: 1; }
 
-  /* JSON 編輯視窗 */
   #jsonModal {
     display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
     width: min(720px, 90vw); background: var(--surface-2); border: 1px solid var(--line-strong);
@@ -533,7 +525,6 @@
         <select id="fParentSelect"></select>
       </div>
     </div>
-    <!-- 前置任務過濾掉系統主幹 -->
     <div class="field">
       <label>前置任務相依 (Predecessor Dependency)</label>
       <select id="fDependencySelect">
@@ -587,7 +578,7 @@
 (function(){
   "use strict";
 
-  var STORAGE_KEY = "material-core-schema-clickup-v3";
+  var STORAGE_KEY = "material-core-schema-clickup-v4";
   var STATUS_LABEL = { planned:"規劃中", in_progress:"研發中", validating:"驗證中", completed:"已完成", blocked:"暫停/瓶頸" };
   var STATUS_VAR = { planned:"--st-planned", in_progress:"--st-in_progress", validating:"--st-validating", completed:"--st-completed", blocked:"--st-blocked" };
 
@@ -674,6 +665,7 @@
     return 4.5;
   }
 
+  // ---------- 階層樹狀平坦化處理 (修復主幹之間互相連線的 Bug) ----------
   function getFlattenedNodes(nodes){
     var result = [];
     var childrenMap = {};
@@ -687,15 +679,23 @@
       var list = childrenMap[pid] || [];
       list.forEach(function(node, idx){
         var isLast = (idx === list.length - 1);
-        var currentFlags = parentLineFlags.slice();
-        currentFlags.push(!isLast);
+        
         result.push({
           node: node,
           depth: depth,
           isLast: isLast,
           parentLineFlags: parentLineFlags
         });
-        traverse(node.id, depth + 1, currentFlags);
+
+        // 關鍵修復：
+        // 當前節點若是系統主幹 (depth === 0)，其子項目 (depth === 1) 不需要帶入任何上層垂直線
+        // 僅當 depth >= 1 時，才記錄該子階段是否有後續兄弟節點 (!isLast)，確保主幹與主幹之間互不連線
+        var nextFlags = parentLineFlags.slice();
+        if (depth >= 1) {
+          nextFlags.push(!isLast);
+        }
+        
+        traverse(node.id, depth + 1, nextFlags);
       });
     }
     traverse("root", 0, []);
@@ -800,7 +800,7 @@
           var leftPx = ((ps - minDate.getTime()) / (24 * 3600 * 1000)) * dayWidth;
           var widthPx = Math.max((((pe - ps) / (24 * 3600 * 1000)) + 1) * dayWidth, 14);
 
-          // 方案 A：關鍵里程碑 ◆ 渲染（右側文字標籤）
+          // 里程碑 ◆ 渲染（右側附帶文字標籤）
           if (node.category === "milestone" || node.start_date === node.end_date){
             var stoneWrap = document.createElement("div");
             stoneWrap.className = "gantt-milestone-wrap mono";
@@ -1294,7 +1294,7 @@
     depSelect.innerHTML = '<option value="">無相依任務</option>';
     state.nodes.forEach(function(n){
       if (editingNode && n.id === editingNode.id) return;
-      if (n.category === "system") return; // 豁免主幹
+      if (n.category === "system") return;
       var opt = document.createElement("option");
       opt.value = n.id;
       opt.textContent = n.topic + " (" + (n.end_date || "無日期") + ")";
