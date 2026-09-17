@@ -25,7 +25,7 @@
     --st-validating: #2E8FA1;
     --st-completed: #4C8F5B;
     --st-blocked: #B0503F;
-    --header-bg: rgba(231, 236, 234, 0.92);
+    --header-bg: rgba(231, 236, 234, 0.94);
     --panel-bg: rgba(244, 246, 244, 0.94);
     --shadow: 0 1px 0 rgba(22,48,59,0.06);
     color-scheme: light;
@@ -40,7 +40,7 @@
       --danger: #E08571;
       --st-planned: #8CA0AC; --st-in_progress: #E8A33D; --st-validating: #5EC8D8;
       --st-completed: #7FB77E; --st-blocked: #D98572;
-      --header-bg: rgba(15, 42, 58, 0.92);
+      --header-bg: rgba(15, 42, 58, 0.94);
       --panel-bg: rgba(20, 50, 71, 0.94);
       --shadow: 0 1px 0 rgba(0,0,0,0.3);
       color-scheme: dark;
@@ -55,7 +55,7 @@
     --danger: #E08571;
     --st-planned: #8CA0AC; --st-in_progress: #E8A33D; --st-validating: #5EC8D8;
     --st-completed: #7FB77E; --st-blocked: #D98572;
-    --header-bg: rgba(15, 42, 58, 0.92);
+    --header-bg: rgba(15, 42, 58, 0.94);
     --panel-bg: rgba(20, 50, 71, 0.94);
     --shadow: 0 1px 0 rgba(0,0,0,0.3);
     color-scheme: dark;
@@ -79,7 +79,7 @@
     position: sticky; top: 0; z-index: 20;
     display: flex; align-items: center; justify-content: space-between;
     gap: 12px; flex-wrap: wrap;
-    padding: 14px 24px;
+    padding: 12px 24px;
     background: var(--header-bg);
     backdrop-filter: blur(6px);
     border-bottom: 1px solid var(--line);
@@ -88,12 +88,14 @@
   header h1 { font-size: 18px; margin: 0; font-weight: 600; cursor: pointer; border-bottom: 1px dashed transparent; }
   header h1:hover { border-bottom-color: var(--accent); }
   header .sub { font-size: 12px; color: var(--ink-dim); margin-top: 2px; }
-  .toolbar { display: flex; gap: 8px; flex-wrap: wrap; }
+  .toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  
+  /* 按鈕樣式 */
   button {
     font: inherit; cursor: pointer;
     border: 1px solid var(--line-strong);
     background: var(--surface-2); color: var(--ink);
-    padding: 6px 11px; border-radius: 6px; font-size: 13px;
+    padding: 5px 10px; border-radius: 6px; font-size: 12.5px;
     transition: all .15s ease;
   }
   button:hover { border-color: var(--accent); }
@@ -103,49 +105,82 @@
   button.small { padding: 3px 7px; font-size: 12px; border-radius: 5px; }
   button.icon { padding: 2px 6px; line-height: 1; }
 
-  main { padding: 20px; max-width: 1560px; margin: 0 auto; }
+  /* 視圖切換按鈕群組 */
+  .view-mode-group {
+    display: flex;
+    background: var(--surface);
+    border: 1px solid var(--line-strong);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .view-mode-group button {
+    border: none;
+    border-radius: 0;
+    padding: 5px 10px;
+    background: transparent;
+    font-size: 12px;
+  }
+  .view-mode-group button.active {
+    background: var(--accent);
+    color: var(--surface-2);
+    font-weight: 600;
+  }
+
+  main { padding: 18px; max-width: 1680px; margin: 0 auto; }
 
   section.panel {
     background: var(--panel-bg);
     border: 1px solid var(--line);
     border-radius: 10px;
-    padding: 20px;
+    padding: 18px;
     margin-bottom: 24px;
+    position: relative;
   }
 
   /* ---------- Combined tree + timeline grid ---------- */
-  .roadmap-wrap { overflow-x: auto; }
+  .roadmap-wrap {
+    overflow-x: auto;
+    position: relative;
+  }
   .roadmap-grid {
     position: relative;
     display: grid;
     grid-template-columns: 440px 1fr;
-    min-width: 1050px;
+    min-width: 1000px;
   }
   .cell {
-    border-top: 1px solid var(--line);
     display: flex;
-    min-height: 52px;
+    min-height: 48px;
   }
-  .roadmap-grid > .cell:nth-child(-n+2) { border-top: none; }
   
+  /* 左側格線控制：頂層保留橫線，子項目完全去除橫線 */
   .cell.left {
-    padding: 8px 12px 8px 6px;
+    padding: 6px 12px 6px 6px;
     flex-direction: column;
     justify-content: center;
     position: relative;
   }
-  
+  .cell.left.root-row {
+    border-top: 1px solid var(--line);
+  }
+  .cell.left.child-row {
+    border-top: none !important;
+  }
+
+  /* 右側時間軸格線 */
   .cell.right {
     position: relative;
-    padding: 0 24px 0 0;
-    overflow: hidden;
-    align-items: flex-start;
+    overflow: visible;
+    align-items: center;
+    border-top: 1px solid var(--line);
   }
-  
-  /* 方案 A：左側欄位標題美化設計 */
+  .roadmap-grid > .cell:nth-child(-n+2) { border-top: none !important; }
+
+  /* 方案 A：左側欄位標題美化 */
   .cell.header-left {
     display: flex; align-items: center;
     padding-left: 6px; padding-right: 14px;
+    border-top: none !important;
   }
   .column-title-box {
     display: inline-flex;
@@ -163,9 +198,14 @@
   }
   .column-title-text:hover { color: var(--accent); }
 
-  .cell.header-right { min-height: 38px; position: relative; overflow: hidden; align-items: center; }
+  .cell.header-right {
+    min-height: 36px;
+    position: relative;
+    overflow: hidden;
+    align-items: center;
+    border-top: none !important;
+  }
 
-  /* 節點主橫列 */
   .node-row {
     display: flex;
     align-items: center;
@@ -178,7 +218,7 @@
   .tree-indent-wrap {
     display: inline-flex;
     align-items: center;
-    height: 34px;
+    height: 36px;
     flex: none;
   }
   .tree-unit {
@@ -187,27 +227,25 @@
     position: relative;
     flex: none;
   }
-  /* 垂直連線 (2px, 主題重點色，清晰不擋版) */
   .tree-unit.line::before {
     content: "";
     position: absolute;
-    top: -12px;
-    bottom: -12px;
+    top: -14px;
+    bottom: -14px;
     left: 10px;
     width: 2px;
     background: var(--accent);
-    opacity: 0.75;
+    opacity: 0.8;
   }
-  /* L型轉折引線 (精確對齊至按鈕中線，不穿透下方卡片) */
   .tree-unit.branch::before {
     content: "";
     position: absolute;
-    top: -12px;
-    height: calc(50% + 12px);
+    top: -14px;
+    height: calc(50% + 14px);
     left: 10px;
     width: 2px;
     background: var(--accent);
-    opacity: 0.75;
+    opacity: 0.8;
   }
   .tree-unit.branch::after {
     content: "";
@@ -217,14 +255,14 @@
     width: 12px;
     height: 2px;
     background: var(--accent);
-    opacity: 0.75;
+    opacity: 0.8;
     transform: translateY(-50%);
   }
 
   .node {
     display: inline-flex; align-items: center; gap: 7px;
     background: var(--surface-2); border: 1px solid var(--line);
-    border-radius: 7px; padding: 6px 10px;
+    border-radius: 7px; padding: 5px 10px;
     cursor: pointer; max-width: 100%;
     box-shadow: var(--shadow);
     overflow: hidden;
@@ -239,13 +277,12 @@
     padding: 1px 5px; border-radius: 4px; border: 1px solid var(--line); margin-left: 2px;
   }
   
-  /* 操作工具列 */
   .row-actions { display: none; gap: 3px; flex: none; margin-left: auto; }
   .cell.left:hover .row-actions { display: inline-flex; }
 
-  /* ---------- 就地展開詳細資訊卡片 ---------- */
+  /* 展開卡片 */
   .node-details-card {
-    margin-top: 8px;
+    margin-top: 6px;
     padding: 8px 12px;
     background: var(--surface);
     border: 1px solid var(--line);
@@ -257,32 +294,85 @@
     box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
   }
   .node-details-card.open { display: block; }
-  .detail-field { margin-bottom: 3px; word-break: break-all; }
+  .detail-field { margin-bottom: 2px; word-break: break-all; }
   .detail-field:last-child { margin-bottom: 0; }
   .detail-field strong { color: var(--ink-dim); font-size: 11.5px; display: inline-block; width: 70px; }
 
-  /* ---------- 時間軸月份標籤 ---------- */
-  .month-tick {
-    position: absolute; top: 0; bottom: 0; font-size: 11.5px; color: var(--ink-dim);
+  /* ---------- 甘特圖色塊 (方案 1 + 3) ---------- */
+  .gantt-bar {
+    position: absolute; height: 26px; border-radius: 5px;
+    color: #ffffff; cursor: move; border: 1px solid rgba(0,0,0,0.18);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    overflow: hidden; user-select: none;
+    display: flex; align-items: center;
+  }
+  .gantt-bar.highlight { outline: 2px solid var(--ink); outline-offset: 1px; }
+
+  /* 底層進度填充條 (Progress Fill) */
+  .gantt-progress-fill {
+    position: absolute; top: 0; left: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.22);
+    pointer-events: none;
+    transition: width .2s ease;
+  }
+
+  /* 雙端文字容器 */
+  .gantt-bar-content {
+    position: relative; z-index: 2;
+    display: flex; justify-content: space-between; align-items: center;
+    width: 100%; height: 100%; padding: 0 8px;
+    pointer-events: none; font-size: 11px; white-space: nowrap;
+  }
+  .gantt-bar-left {
+    display: flex; align-items: center; gap: 5px;
+    overflow: hidden; text-overflow: ellipsis;
+  }
+  .gantt-bar-right {
+    font-size: 10px; opacity: 0.85; margin-left: 8px;
+  }
+
+  /* 左右兩端伸縮調整手把 (Resize Handles) */
+  .resize-handle {
+    position: absolute; top: 0; bottom: 0; width: 6px;
+    cursor: col-resize; z-index: 3;
+  }
+  .resize-handle.left { left: 0; }
+  .resize-handle.right { right: 0; }
+  .resize-handle:hover { background: rgba(255,255,255,0.4); }
+
+  /* 功能 A：里程碑菱形節點 */
+  .gantt-milestone {
+    position: absolute; width: 15px; height: 15px;
+    transform: rotate(45deg); border-radius: 2px;
+    cursor: pointer; z-index: 4;
+    border: 1px solid rgba(0,0,0,0.25);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+  }
+  .gantt-milestone.highlight {
+    outline: 2px solid var(--ink); outline-offset: 2px;
+  }
+
+  /* 相依性箭頭圖層 (SVG Overlay) */
+  #dependency-svg {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 5;
+  }
+
+  /* 時間軸刻度與輔助線 */
+  .time-tick {
+    position: absolute; top: 0; bottom: 0; font-size: 11px; color: var(--ink-dim);
     border-left: 1px solid var(--line); padding-left: 5px; pointer-events: none;
     display: flex; align-items: center; white-space: nowrap;
   }
   .bg-gridline {
     position: absolute; top: 0; bottom: 0; width: 1px; background: var(--line); pointer-events: none;
   }
-  .gantt-bar {
-    position: absolute; top: 13px; height: 26px; border-radius: 5px;
-    font-size: 11px; color: #0c1c22; display: flex; align-items: center;
-    padding: 0 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    cursor: pointer; border: 1px solid rgba(0,0,0,0.15);
-  }
-  .gantt-bar.highlight { outline: 2px solid var(--ink); outline-offset: 1px; }
   .today-line {
-    position: absolute; top: 0; bottom: 0; width: 1px; background: var(--danger); z-index: 3; pointer-events: none;
+    position: absolute; top: 0; bottom: 0; width: 1.5px; background: var(--danger); z-index: 6; pointer-events: none;
   }
   .today-line .lbl {
-    position: absolute; top: 2px; left: 3px; font-size: 10px; color: var(--danger);
-    font-family: "IBM Plex Mono", monospace; white-space: nowrap;
+    position: absolute; top: 2px; left: 4px; font-size: 10px; color: var(--danger);
+    font-family: "IBM Plex Mono", monospace; white-space: nowrap; font-weight: 600;
   }
 
   .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--ink-dim); margin-top: 14px; }
@@ -293,14 +383,14 @@
     border: 1px dashed var(--line); border-radius: 8px;
   }
 
-  /* ---------- 抽屜 (Drawer) ---------- */
+  /* 抽屜 (Drawer) */
   .overlay {
     position: fixed; inset: 0; background: rgba(10,20,26,0.35);
     opacity: 0; pointer-events: none; transition: opacity .18s ease; z-index: 30;
   }
   .overlay.open { opacity: 1; pointer-events: auto; }
   .drawer {
-    position: fixed; top: 0; right: 0; height: 100%; width: min(450px, 94vw);
+    position: fixed; top: 0; right: 0; height: 100%; width: min(460px, 94vw);
     background: var(--surface-2); border-left: 1px solid var(--line);
     transform: translateX(100%); transition: transform .2s ease;
     z-index: 31; padding: 24px; overflow-y: auto;
@@ -332,7 +422,6 @@
 
   footer { text-align: center; font-size: 11.5px; color: var(--ink-dim); padding: 12px 24px 32px; }
 </style>
-<!-- 引入 html2canvas 支援 PPT 截圖 -->
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
 <body>
@@ -343,12 +432,18 @@
       <h1 id="projectTitle" title="點擊修改專案名稱">新材料研發專案</h1>
       <button class="icon small ghost" id="btnEditTitle" title="修改專案名稱">✎</button>
     </div>
-    <div class="sub" id="projectMeta">最後更新: - ｜ 點選節點色塊檢視或直接點擊 📋 展開物性</div>
+    <div class="sub" id="projectMeta">最後更新: - ｜ 可滑鼠直接拖曳色塊或兩側手把調控工期</div>
   </div>
   <div class="toolbar">
-    <button class="ghost small" id="btnTheme" title="切換淺色／深色">◐ 切換主題</button>
-    <button class="small" id="btnExportImage" title="匯出高畫質圖片至 PPT 使用">📷 匯出簡報圖 (PNG)</button>
-    <button class="small" id="btnEditJson">檢視 / 貼上 JSON</button>
+    <!-- 功能 B：視圖切換按鈕群組 -->
+    <div class="view-mode-group">
+      <button id="vm-week" onclick="switchViewMode('week')">週視圖</button>
+      <button id="vm-month" class="active" onclick="switchViewMode('month')">月視圖</button>
+      <button id="vm-quarter" onclick="switchViewMode('quarter')">季視圖</button>
+    </div>
+    <button class="ghost small" id="btnTheme" title="切換主題">◐ 主題</button>
+    <button class="small" id="btnExportImage" title="匯出高畫質圖片至 PPT">📷 匯出簡報圖 (PNG)</button>
+    <button class="small" id="btnEditJson">檢視/貼上 JSON</button>
     <button class="small" id="btnExport">匯出 JSON</button>
     <button class="small" id="btnImport">匯入 JSON</button>
     <input type="file" id="fileImport" accept="application/json" style="display:none">
@@ -358,21 +453,33 @@
 
 <main>
   <section class="panel" id="captureTarget">
-    <div class="roadmap-wrap">
-      <div class="roadmap-grid" id="roadmapGrid"></div>
+    <div class="roadmap-wrap" id="roadmapWrap">
+      <div class="roadmap-grid" id="roadmapGrid">
+        <!-- SVG 相依性導引箭頭連線圖層 -->
+        <svg id="dependency-svg">
+          <defs>
+            <marker id="arrow-normal" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M 0 1 L 10 5 L 0 9 z" fill="var(--accent)" />
+            </marker>
+            <marker id="arrow-conflict" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M 0 1 L 10 5 L 0 9 z" fill="var(--danger)" />
+            </marker>
+          </defs>
+        </svg>
+      </div>
     </div>
     <div class="legend" id="legendMap"></div>
   </section>
 </main>
 
 <footer>
-  單一 HTML 檔案，支援部署於 GitHub Pages；隨時可匯出 JSON 或點擊「📷 匯出簡報圖」貼至 PPT 會議簡報。
+  單一 HTML 檔案，支援部署於 GitHub Pages；色塊支援直接按住拖動與邊緣縮放。
 </footer>
 
 <!-- 編輯抽屜 (Drawer) -->
 <div class="overlay" id="overlay"></div>
 <div class="drawer" id="drawer">
-  <h3 id="drawerTitle">編輯節點</h3>
+  <h3 id="drawerTitle">編輯研發節點</h3>
   <form id="editForm">
     <div class="field">
       <label>節點名稱 (Topic)</label>
@@ -385,7 +492,7 @@
           <option value="system">系統主幹 (System)</option>
           <option value="formulation">配方研發 (Formulation)</option>
           <option value="testing">物性驗證 (Testing)</option>
-          <option value="milestone">關鍵里程碑 (Milestone)</option>
+          <option value="milestone">關鍵里程碑 (Milestone ◆)</option>
         </select>
       </div>
       <div class="field">
@@ -409,6 +516,13 @@
         <select id="fParentSelect"></select>
       </div>
     </div>
+    <!-- 功能 D：前置任務相依下拉選單 -->
+    <div class="field">
+      <label>前置任務相依 (Predecessor Dependency)</label>
+      <select id="fDependencySelect">
+        <option value="">無相依任務</option>
+      </select>
+    </div>
     <div class="row">
       <div class="field">
         <label>開始日期</label>
@@ -419,8 +533,6 @@
         <input type="date" id="fEnd">
       </div>
     </div>
-    
-    <!-- 材料研發專屬參數：Placeholder 全數清空 -->
     <div class="field">
       <label>工藝參數 (params)</label>
       <textarea id="fParams" placeholder=""></textarea>
@@ -458,7 +570,7 @@
 (function(){
   "use strict";
 
-  var STORAGE_KEY = "material-core-schema-blank-v4";
+  var STORAGE_KEY = "material-core-schema-clickup-v1";
   var STATUS_LABEL = { planned:"規劃中", in_progress:"研發中", validating:"驗證中", completed:"已完成", blocked:"暫停/瓶頸" };
   var STATUS_VAR = { planned:"--st-planned", in_progress:"--st-in_progress", validating:"--st-validating", completed:"--st-completed", blocked:"--st-blocked" };
 
@@ -468,13 +580,15 @@
     return {
       "project": "新材料研發專案",
       "column_title": "材料架構 / 實驗階段",
+      "view_mode": "month",
       "updated_at": new Date().toISOString().split("T")[0],
       "nodes": []
     };
   }
 
   var state = null;
-  var expandedDetails = {}; // 追蹤各節點是否展開
+  var expandedDetails = {}; 
+  var viewMode = "month"; // week | month | quarter
 
   function loadState(){
     try {
@@ -483,14 +597,23 @@
     } catch(e){}
     if (!state) state = seedData();
     if (!state.column_title) state.column_title = "材料架構 / 實驗階段";
+    if (state.view_mode) viewMode = state.view_mode;
+    updateViewModeButtons();
     renderAll();
   }
 
   function saveState(){
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e){ console.error(e); }
+    try {
+      state.view_mode = viewMode;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch(e){ console.error(e); }
   }
 
-  function addDays(date, n){ var d = new Date(date); d.setDate(d.getDate()+n); return d; }
+  function addDays(date, n){
+    var d = new Date(date);
+    d.setDate(d.getDate() + n);
+    return d;
+  }
 
   function escapeHtml(str){
     return String(str)
@@ -501,7 +624,43 @@
       .replace(/\n/g, '<br>');
   }
 
-  // 階層樹狀平坦化計算
+  // 自動計算總工期（天數或月份）
+  function formatDuration(startStr, endStr){
+    if (!startStr || !endStr) return "";
+    var s = new Date(startStr);
+    var e = new Date(endStr);
+    var days = Math.round((e.getTime() - s.getTime()) / (24 * 3600 * 1000)) + 1;
+    if (days <= 0) return "1 天";
+    if (days >= 45) {
+      var m = (days / 30.4).toFixed(1);
+      return (m.endsWith(".0") ? m.slice(0, -2) : m) + " 個月";
+    }
+    return days + " 天";
+  }
+
+  // 視圖切換
+  window.switchViewMode = function(mode){
+    viewMode = mode;
+    saveState();
+    updateViewModeButtons();
+    renderAll();
+  };
+
+  function updateViewModeButtons(){
+    ["week", "month", "quarter"].forEach(function(m){
+      var btn = document.getElementById("vm-" + m);
+      if (btn) btn.className = (m === viewMode) ? "active" : "";
+    });
+  }
+
+  // 取得每日像素寬度 (Day Width)
+  function getDayWidth(){
+    if (viewMode === "week") return 16;     // 1天 = 16px
+    if (viewMode === "quarter") return 1.5;  // 1天 = 1.5px
+    return 4.5;                             // 1天 = 4.5px (月視圖)
+  }
+
+  // 階層樹狀平坦化處理
   function getFlattenedNodes(nodes){
     var result = [];
     var childrenMap = {};
@@ -537,31 +696,49 @@
     return result;
   }
 
-  // ---------- 主要繪製邏輯 ----------
+  // ---------- 核心渲染邏輯 ----------
   function renderAll(){
     document.getElementById("projectTitle").textContent = state.project || "新材料研發專案";
-    document.getElementById("projectMeta").textContent = "最後更新: " + (state.updated_at || "-") + " ｜ 點選節點色塊檢視或直接點擊 📋 展開物性";
+    document.getElementById("projectMeta").textContent = "最後更新: " + (state.updated_at || "-") + " ｜ 可直接拖曳色塊調整日期或拉動邊緣調整工期";
 
     var grid = document.getElementById("roadmapGrid");
+    
+    // 清空舊節點，但保留 svg#dependency-svg
+    var svgLayer = document.getElementById("dependency-svg");
     grid.innerHTML = "";
+    grid.appendChild(svgLayer);
 
     var flatList = getFlattenedNodes(state.nodes || []);
 
-    // 計算時間軸刻度
+    // 計算時間尺度
     var datedNodes = flatList.map(function(item){ return item.node; }).filter(function(n){ return n.start_date && n.end_date; });
-    var minDate, maxDate, totalMs, hasScale = false;
+    var minDate, maxDate, totalDays, totalMs, hasScale = false;
+    var dayWidth = getDayWidth();
+
     if (datedNodes.length){
       hasScale = true;
-      minDate = addDays(new Date(Math.min.apply(null, datedNodes.map(function(n){ return new Date(n.start_date).getTime(); }))), -7);
-      maxDate = addDays(new Date(Math.max.apply(null, datedNodes.map(function(n){ return new Date(n.end_date).getTime(); }))), 10);
-      totalMs = maxDate.getTime() - minDate.getTime();
+      var rawMin = new Date(Math.min.apply(null, datedNodes.map(function(n){ return new Date(n.start_date).getTime(); })));
+      var rawMax = new Date(Math.max.apply(null, datedNodes.map(function(n){ return new Date(n.end_date).getTime(); })));
 
-      // 計算月份跨度，動態調整 grid 寬度避免 12 個月字體擠壓
-      var approxMonths = Math.max(1, Math.round(totalMs / (28 * 24 * 3600 * 1000)));
-      grid.style.minWidth = Math.max(1050, 440 + (approxMonths * 70)) + "px";
+      // 視圖寬裕緩衝邊界
+      var padStart = (viewMode === "week") ? 5 : 10;
+      var padEnd = (viewMode === "week") ? 7 : 14;
+      minDate = addDays(rawMin, -padStart);
+      maxDate = addDays(rawMax, padEnd);
+
+      totalMs = maxDate.getTime() - minDate.getTime();
+      totalDays = Math.ceil(totalMs / (24 * 3600 * 1000));
+
+      // 動態更新右側欄與整個 Grid 最小寬度
+      var rightColWidth = Math.max(700, totalDays * dayWidth);
+      grid.style.gridTemplateColumns = "440px " + rightColWidth + "px";
+      grid.style.minWidth = (440 + rightColWidth) + "px";
+    } else {
+      grid.style.gridTemplateColumns = "440px 1fr";
+      grid.style.minWidth = "1000px";
     }
 
-    // 1. 表頭左欄（方案 A：靠左、15px 加粗、質感色條）
+    // 1. 表頭左欄
     var headerLeft = makeCell("left header-left", "");
     var titleBox = document.createElement("div");
     titleBox.className = "column-title-box";
@@ -583,36 +760,15 @@
     headerLeft.appendChild(titleBox);
     grid.appendChild(headerLeft);
 
-    // 表頭右欄（精簡月份刻度：1月 ~ 12月）
+    // 表頭右欄（依視圖動態生成時間刻度）
     var headerRight = makeCell("right header-right", "");
     if (hasScale){
-      var cursor = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
-      var isFirst = true;
-      while (cursor <= maxDate){
-        var curMs = cursor.getTime();
-        if (curMs >= minDate.getTime()){
-          var pct = ((curMs - minDate.getTime()) / totalMs) * 100;
-          var tick = document.createElement("div");
-          tick.className = "month-tick mono";
-          tick.style.left = pct + "%";
-          
-          var m = cursor.getMonth() + 1;
-          // 第一個月或逢一月顯示年份，其餘一律純顯示月份
-          if (isFirst || m === 1){
-            tick.textContent = cursor.getFullYear() + "/" + m + "月";
-          } else {
-            tick.textContent = m + "月";
-          }
-          headerRight.appendChild(tick);
-          isFirst = false;
-        }
-        cursor = new Date(cursor.getFullYear(), cursor.getMonth()+1, 1);
-      }
+      renderTimelineTicks(headerRight, minDate, maxDate, totalMs, totalDays, dayWidth);
     }
     grid.appendChild(headerRight);
 
     if (!flatList.length){
-      grid.appendChild(makeCell("left", ""));
+      grid.appendChild(makeCell("left root-row", ""));
       var emptyRight = makeCell("right", "");
       emptyRight.innerHTML = '<div class="empty-hint" style="width:100%">目前尚無任何研發節點，點擊右上角「＋ 新增系統主幹」開始建立。</div>';
       grid.appendChild(emptyRight);
@@ -622,38 +778,102 @@
     flatList.forEach(function(item){
       var node = item.node;
 
+      // 左側階層欄（頂層有橫線，子層無橫線）
       grid.appendChild(buildLeftCell(item));
 
+      // 右側時間軸甘特色塊
       var cellRight = makeCell("right", "");
+      cellRight.dataset.nodeId = node.id;
+
       if (hasScale){
         addGridlines(cellRight, minDate, maxDate, totalMs);
+
         if (node.start_date && node.end_date){
           var ps = new Date(node.start_date).getTime();
           var pe = new Date(node.end_date).getTime();
-          var bar = document.createElement("div");
-          bar.className = "gantt-bar mono";
-          bar.dataset.nodeId = node.id;
-          bar.style.left = (((ps - minDate.getTime())/totalMs)*100) + "%";
-          bar.style.width = Math.max((((pe - ps)/totalMs)*100), 1.5) + "%";
-          bar.style.background = "var(" + (STATUS_VAR[node.status] || "--st-planned") + ")";
-          bar.textContent = node.topic;
-          bar.title = node.topic + " [" + (STATUS_LABEL[node.status] || node.status) + "] " + node.start_date + " → " + node.end_date;
-          bar.onclick = function(){ openDrawer(node); highlightPair(node.id); };
-          cellRight.appendChild(bar);
+          var leftPx = ((ps - minDate.getTime()) / (24 * 3600 * 1000)) * dayWidth;
+          var widthPx = Math.max((((pe - ps) / (24 * 3600 * 1000)) + 1) * dayWidth, 14);
+
+          // 功能 A：里程碑 ◆ 渲染
+          if (node.category === "milestone" || node.start_date === node.end_date){
+            var stone = document.createElement("div");
+            stone.className = "gantt-milestone";
+            stone.dataset.nodeId = node.id;
+            stone.style.left = (leftPx + (widthPx / 2) - 7.5) + "px";
+            stone.style.background = "var(" + (STATUS_VAR[node.status] || "--st-planned") + ")";
+            stone.title = "◆ 里程碑: " + node.topic + " (" + node.start_date + ")";
+            stone.onclick = function(){ openDrawer(node); highlightPair(node.id); };
+            cellRight.appendChild(stone);
+          } else {
+            // 方案 1 + 3：甘特長條色塊（進度填充 + 雙端排版）
+            var bar = document.createElement("div");
+            bar.className = "gantt-bar mono";
+            bar.dataset.nodeId = node.id;
+            bar.style.left = leftPx + "px";
+            bar.style.width = widthPx + "px";
+            bar.style.background = "var(" + (STATUS_VAR[node.status] || "--st-planned") + ")";
+
+            // 底層進度暗色覆蓋條
+            var fill = document.createElement("div");
+            fill.className = "gantt-progress-fill";
+            fill.style.width = Math.min(100, Math.max(0, node.progress || 0)) + "%";
+            bar.appendChild(fill);
+
+            // 雙端排版文字
+            var content = document.createElement("div");
+            content.className = "gantt-bar-content";
+            
+            var leftText = document.createElement("span");
+            leftText.className = "gantt-bar-left";
+            leftText.innerHTML = escapeHtml(node.topic) + (node.progress ? " <span style='font-size:10px; opacity:0.85;'>(" + node.progress + "%)</span>" : "");
+            content.appendChild(leftText);
+
+            // 當長度充足時顯示右端總工期
+            if (widthPx >= 75){
+              var rightText = document.createElement("span");
+              rightText.className = "gantt-bar-right";
+              rightText.textContent = formatDuration(node.start_date, node.end_date);
+              content.appendChild(rightText);
+            }
+            bar.appendChild(content);
+
+            // 功能 C：左/右伸縮調整手把 (Resize Handles)
+            var handleL = document.createElement("div");
+            handleL.className = "resize-handle left";
+            var handleR = document.createElement("div");
+            handleR.className = "resize-handle right";
+            bar.appendChild(handleL);
+            bar.appendChild(handleR);
+
+            // 綁定拖曳與點擊
+            bindBarDragAndResize(bar, node, dayWidth, minDate);
+            bar.onclick = function(e){
+              if (bar.dataset.dragged === "true") return;
+              openDrawer(node);
+              highlightPair(node.id);
+            };
+
+            cellRight.appendChild(bar);
+          }
         }
       }
       grid.appendChild(cellRight);
     });
 
-    // 「今天」紅線
+    // 「今天」標記紅線
     if (hasScale){
       var today = new Date();
       if (today >= minDate && today <= maxDate){
-        requestAnimationFrame(function(){ drawTodayLine(grid, minDate, maxDate, totalMs); });
+        requestAnimationFrame(function(){ drawTodayLine(grid, minDate, dayWidth); });
       }
     }
 
     renderLegend();
+
+    // 功能 D：非同步繪製前置任務相依連線
+    requestAnimationFrame(function(){
+      drawDependencies(flatList);
+    });
   }
 
   function makeCell(cls, text){
@@ -663,30 +883,82 @@
     return d;
   }
 
-  function addGridlines(container, minDate, maxDate, totalMs){
-    var cursor = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
-    while (cursor <= maxDate){
-      var curMs = cursor.getTime();
-      if (curMs >= minDate.getTime()){
-        var pct = ((curMs - minDate.getTime()) / totalMs) * 100;
-        var line = document.createElement("div");
-        line.className = "bg-gridline";
-        line.style.left = pct + "%";
-        container.appendChild(line);
+  // ---------- 時間軸刻度動態生成 (週 / 月 / 季) ----------
+  function renderTimelineTicks(container, minDate, maxDate, totalMs, totalDays, dayWidth){
+    var cursor = new Date(minDate.getFullYear(), minDate.getMonth(), minDate.getDate());
+
+    if (viewMode === "week"){
+      // 週視圖：每週一標示日期
+      while (cursor <= maxDate){
+        if (cursor.getDay() === 1){ // 週一
+          var curDays = (cursor.getTime() - minDate.getTime()) / (24 * 3600 * 1000);
+          var tick = document.createElement("div");
+          tick.className = "time-tick mono";
+          tick.style.left = (curDays * dayWidth) + "px";
+          tick.textContent = (cursor.getMonth() + 1) + "/" + cursor.getDate();
+          container.appendChild(tick);
+        }
+        cursor = addDays(cursor, 1);
       }
-      cursor = new Date(cursor.getFullYear(), cursor.getMonth()+1, 1);
+    } else if (viewMode === "quarter"){
+      // 季視圖：標示 Q1~Q4 及年份
+      while (cursor <= maxDate){
+        var m = cursor.getMonth();
+        if (cursor.getDate() === 1 && (m % 3 === 0)){
+          var curDays = (cursor.getTime() - minDate.getTime()) / (24 * 3600 * 1000);
+          var tick = document.createElement("div");
+          tick.className = "time-tick mono";
+          tick.style.left = (curDays * dayWidth) + "px";
+          var qNum = Math.floor(m / 3) + 1;
+          tick.textContent = cursor.getFullYear() + " Q" + qNum;
+          container.appendChild(tick);
+        }
+        cursor = addDays(cursor, 1);
+      }
+    } else {
+      // 月視圖 (預設)：每月 1 號標示，跨年或首月附帶年份
+      var isFirst = true;
+      while (cursor <= maxDate){
+        if (cursor.getDate() === 1){
+          var curDays = (cursor.getTime() - minDate.getTime()) / (24 * 3600 * 1000);
+          var tick = document.createElement("div");
+          tick.className = "time-tick mono";
+          tick.style.left = (curDays * dayWidth) + "px";
+          var m = cursor.getMonth() + 1;
+          tick.textContent = (isFirst || m === 1) ? (cursor.getFullYear() + "/" + m + "月") : (m + "月");
+          container.appendChild(tick);
+          isFirst = false;
+        }
+        cursor = addDays(cursor, 1);
+      }
     }
   }
 
-  function drawTodayLine(grid, minDate, maxDate, totalMs){
+  function addGridlines(container, minDate, maxDate, totalMs){
+    var cursor = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
+    var dayWidth = getDayWidth();
+    while (cursor <= maxDate){
+      var curDays = (cursor.getTime() - minDate.getTime()) / (24 * 3600 * 1000);
+      if (curDays >= 0){
+        var line = document.createElement("div");
+        line.className = "bg-gridline";
+        line.style.left = (curDays * dayWidth) + "px";
+        container.appendChild(line);
+      }
+      cursor = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1);
+    }
+  }
+
+  function drawTodayLine(grid, minDate, dayWidth){
     var old = grid.querySelector(".today-line");
     if (old) old.remove();
     var firstRightCell = grid.querySelector(".cell.right");
     if (!firstRightCell) return;
     var gridRect = grid.getBoundingClientRect();
     var rightRect = firstRightCell.getBoundingClientRect();
-    var pct = ((new Date().getTime() - minDate.getTime()) / totalMs);
-    var leftPx = (rightRect.left - gridRect.left) + pct * rightRect.width;
+    var days = (new Date().getTime() - minDate.getTime()) / (24 * 3600 * 1000);
+    var leftPx = (rightRect.left - gridRect.left) + (days * dayWidth);
+    
     var line = document.createElement("div");
     line.className = "today-line";
     line.style.left = leftPx + "px";
@@ -694,18 +966,18 @@
     grid.appendChild(line);
   }
 
-  // ---------- 左側節點欄（含引線優化與無資料隱藏） ----------
+  // ---------- 左側節點欄（頂層橫線、子層無橫線） ----------
   function buildLeftCell(item){
     var node = item.node;
     var depth = item.depth;
     var parentFlags = item.parentLineFlags || [];
 
-    var cell = makeCell("left", "");
+    // depth === 0 加上 root-row (保留橫線)，其餘加上 child-row (去除橫線)
+    var cell = makeCell("left " + (depth === 0 ? "root-row" : "child-row"), "");
 
     var row = document.createElement("div");
     row.className = "node-row";
 
-    // 階層引線
     if (depth > 0){
       var indentWrap = document.createElement("div");
       indentWrap.className = "tree-indent-wrap";
@@ -722,7 +994,6 @@
       row.appendChild(indentWrap);
     }
 
-    // 節點本體
     var wrap = document.createElement("div");
     wrap.className = "node" + (node.category === "system" ? " system-node" : "");
     wrap.dataset.nodeId = node.id;
@@ -747,19 +1018,18 @@
     wrap.onclick = function(){ openDrawer(node); highlightPair(node.id); };
     row.appendChild(wrap);
 
-    // 檢查是否有填寫任何詳細資訊
+    // 檢查是否有填寫詳細資訊
     var d = node.details || {};
     var p = (d.params || "").trim();
     var m = (d.metrics || "").trim();
     var n = (d.notes || "").trim();
     var hasAnyDetails = (p !== "" || m !== "" || n !== "");
 
-    // 僅在「有填寫內容」時才顯示展開按鈕
     if (hasAnyDetails){
       var toggleBtn = document.createElement("button");
       toggleBtn.className = "icon small ghost";
       toggleBtn.textContent = expandedDetails[node.id] ? "收合 ▴" : "📋 展開";
-      toggleBtn.title = "就地展開/收合工藝參數與目標";
+      toggleBtn.title = "就地展開工藝參數與目標";
       toggleBtn.style.fontSize = "11px";
       toggleBtn.onclick = function(ev){
         ev.stopPropagation();
@@ -769,7 +1039,7 @@
       row.appendChild(toggleBtn);
     }
 
-    // 操作工具列
+    // 操作按鈕組
     var actions = document.createElement("span");
     actions.className = "row-actions";
     
@@ -787,7 +1057,7 @@
 
     var addSubBtn = document.createElement("button");
     addSubBtn.className = "icon small ghost"; addSubBtn.textContent = "＋";
-    addSubBtn.title = "在此項目下新增子階段";
+    addSubBtn.title = "新增子階段";
     addSubBtn.onclick = function(ev){ ev.stopPropagation(); openDrawer(null, node.id); };
     actions.appendChild(addSubBtn);
 
@@ -800,7 +1070,7 @@
     row.appendChild(actions);
     cell.appendChild(row);
 
-    // 展開卡片渲染（僅輸出有填寫的項目，不出現「未填寫」）
+    // 展開卡片渲染（僅輸出有內容的項目）
     if (hasAnyDetails && expandedDetails[node.id]){
       var card = document.createElement("div");
       card.className = "node-details-card open";
@@ -819,7 +1089,134 @@
     return cell;
   }
 
-  // ---------- 節點同階層排序 ----------
+  // ---------- 功能 C：滑鼠拖曳移動與拉伸工期核心機制 ----------
+  function bindBarDragAndResize(bar, node, dayWidth, minDate){
+    var startX, origStartMs, origEndMs;
+    var isDragging = false;
+    var dragMode = null; // "move" | "resize-left" | "resize-right"
+
+    function onMouseDown(e){
+      if (e.target.classList.contains("resize-handle")){
+        dragMode = e.target.classList.contains("left") ? "resize-left" : "resize-right";
+      } else {
+        dragMode = "move";
+      }
+
+      startX = e.clientX;
+      origStartMs = new Date(node.start_date).getTime();
+      origEndMs = new Date(node.end_date).getTime();
+      isDragging = false;
+      bar.dataset.dragged = "false";
+
+      document.body.style.userSelect = "none";
+      window.addEventListener("mousemove", onMouseMove);
+      window.addEventListener("mouseup", onMouseUp);
+      e.stopPropagation();
+    }
+
+    function onMouseMove(e){
+      var dx = e.clientX - startX;
+      if (Math.abs(dx) > 3) isDragging = true;
+      if (!isDragging) return;
+      bar.dataset.dragged = "true";
+
+      var daysDelta = Math.round(dx / dayWidth);
+
+      if (dragMode === "move"){
+        var newStart = addDays(new Date(origStartMs), daysDelta);
+        var newEnd = addDays(new Date(origEndMs), daysDelta);
+        node.start_date = newStart.toISOString().split("T")[0];
+        node.end_date = newEnd.toISOString().split("T")[0];
+      } else if (dragMode === "resize-left"){
+        var newStart = addDays(new Date(origStartMs), daysDelta);
+        if (newStart.getTime() <= origEndMs){
+          node.start_date = newStart.toISOString().split("T")[0];
+        }
+      } else if (dragMode === "resize-right"){
+        var newEnd = addDays(new Date(origEndMs), daysDelta);
+        if (newEnd.getTime() >= origStartMs){
+          node.end_date = newEnd.toISOString().split("T")[0];
+        }
+      }
+
+      // 即時反應位置
+      var curStartMs = new Date(node.start_date).getTime();
+      var curEndMs = new Date(node.end_date).getTime();
+      var curLeft = ((curStartMs - minDate.getTime()) / (24 * 3600 * 1000)) * dayWidth;
+      var curWidth = Math.max((((curEndMs - curStartMs) / (24 * 3600 * 1000)) + 1) * dayWidth, 14);
+
+      bar.style.left = curLeft + "px";
+      bar.style.width = curWidth + "px";
+    }
+
+    function onMouseUp(e){
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+      document.body.style.userSelect = "";
+
+      if (isDragging){
+        state.updated_at = new Date().toISOString().split("T")[0];
+        saveState();
+        renderAll();
+      }
+    }
+
+    bar.addEventListener("mousedown", onMouseDown);
+  }
+
+  // ---------- 功能 D：前置任務相依連線 (SVG Curved Lines) ----------
+  function drawDependencies(flatList){
+    var svg = document.getElementById("dependency-svg");
+    // 清除舊線條 (保留 defs)
+    var paths = svg.querySelectorAll("path.dep-line");
+    paths.forEach(function(p){ p.remove(); });
+
+    var grid = document.getElementById("roadmapGrid");
+    var gridRect = grid.getBoundingClientRect();
+
+    flatList.forEach(function(item){
+      var node = item.node;
+      if (!node.dependency_id) return;
+
+      var predNode = state.nodes.find(function(n){ return n.id === node.dependency_id; });
+      if (!predNode || !predNode.start_date || !node.start_date) return;
+
+      var fromEl = grid.querySelector('.gantt-bar[data-node-id="' + predNode.id + '"], .gantt-milestone[data-node-id="' + predNode.id + '"]');
+      var toEl = grid.querySelector('.gantt-bar[data-node-id="' + node.id + '"], .gantt-milestone[data-node-id="' + node.id + '"]');
+
+      if (!fromEl || !toEl) return;
+
+      var r1 = fromEl.getBoundingClientRect();
+      var r2 = toEl.getBoundingClientRect();
+
+      // 出發點 (前置任務右中) 與 到達點 (當前任務左中)
+      var x1 = r1.right - gridRect.left;
+      var y1 = r1.top + (r1.height / 2) - gridRect.top;
+      var x2 = r2.left - gridRect.left;
+      var y2 = r2.top + (r2.height / 2) - gridRect.top;
+
+      // 檢查是否衝突 (前置任務結束晚於當前任務開始)
+      var isConflict = new Date(predNode.end_date).getTime() > new Date(node.start_date).getTime();
+
+      // 繪製滑順的 S 型貝茲曲線
+      var dx = Math.max(20, Math.abs(x2 - x1) * 0.4);
+      var dStr = "M " + x1 + " " + y1 + " C " + (x1 + dx) + " " + y1 + ", " + (x2 - dx) + " " + y2 + ", " + x2 + " " + y2;
+
+      var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      path.setAttribute("d", dStr);
+      path.setAttribute("class", "dep-line");
+      path.setAttribute("fill", "none");
+      path.setAttribute("stroke", isConflict ? "var(--danger)" : "var(--accent)");
+      path.setAttribute("stroke-width", "1.5");
+      if (isConflict) path.setAttribute("stroke-dasharray", "4 2");
+      path.setAttribute("marker-end", isConflict ? "url(#arrow-conflict)" : "url(#arrow-normal)");
+      path.setAttribute("opacity", "0.75");
+
+      svg.appendChild(path);
+    });
+  }
+
+  // ---------- 排序與高亮 ----------
   function moveNodeOrder(nodeId, direction){
     var idx = state.nodes.findIndex(function(n){ return n.id === nodeId; });
     if (idx === -1) return;
@@ -848,7 +1245,7 @@
   }
 
   function highlightPair(nodeId){
-    document.querySelectorAll(".node.highlight, .gantt-bar.highlight").forEach(function(el){
+    document.querySelectorAll(".node.highlight, .gantt-bar.highlight, .gantt-milestone.highlight").forEach(function(el){
       el.classList.remove("highlight");
     });
     document.querySelectorAll('[data-node-id="' + nodeId + '"]').forEach(function(el){
@@ -865,6 +1262,10 @@
       span.innerHTML = '<span class="dot" style="width:8px;height:8px;background:var(' + STATUS_VAR[key] + ')"></span>' + STATUS_LABEL[key];
       el.appendChild(span);
     });
+    var mItem = document.createElement("span");
+    mItem.className = "item";
+    mItem.innerHTML = '<span style="display:inline-block;width:9px;height:9px;transform:rotate(45deg);background:var(--accent);margin-right:2px;"></span> 里程碑 (◆)';
+    el.appendChild(mItem);
   }
 
   // ---------- 抽屜編輯表單 ----------
@@ -876,6 +1277,7 @@
     editingNode = node || {
       id: uid(),
       parent_id: defaultParentId || "root",
+      dependency_id: "",
       topic: "",
       category: defaultParentId ? "formulation" : "system",
       start_date: "",
@@ -885,6 +1287,7 @@
       details: { params: "", metrics: "", notes: "" }
     };
 
+    // 上層項目下拉
     var select = document.getElementById("fParentSelect");
     select.innerHTML = '<option value="root">最上層主幹 (Root)</option>';
     state.nodes.forEach(function(n){
@@ -895,6 +1298,18 @@
       select.appendChild(opt);
     });
     select.value = editingNode.parent_id || "root";
+
+    // 前置任務下拉選單
+    var depSelect = document.getElementById("fDependencySelect");
+    depSelect.innerHTML = '<option value="">無相依任務</option>';
+    state.nodes.forEach(function(n){
+      if (editingNode && n.id === editingNode.id) return;
+      var opt = document.createElement("option");
+      opt.value = n.id;
+      opt.textContent = n.topic + " (" + (n.end_date || "無日期") + ")";
+      depSelect.appendChild(opt);
+    });
+    depSelect.value = editingNode.dependency_id || "";
 
     document.getElementById("drawerTitle").textContent = isNew ? "新增研發節點" : "編輯研發節點";
     document.getElementById("fTopic").value = editingNode.topic || "";
@@ -927,6 +1342,7 @@
     editingNode.status = document.getElementById("fStatus").value;
     editingNode.progress = parseInt(document.getElementById("fProgress").value, 10) || 0;
     editingNode.parent_id = document.getElementById("fParentSelect").value;
+    editingNode.dependency_id = document.getElementById("fDependencySelect").value;
     editingNode.start_date = document.getElementById("fStart").value;
     editingNode.end_date = document.getElementById("fEnd").value;
     editingNode.details = {
@@ -979,7 +1395,7 @@
     }
   }
 
-  // ---------- 方案 A：匯出 PPT 簡報圖 ----------
+  // ---------- 匯出 PPT 簡報圖 (PNG) ----------
   document.getElementById("btnExportImage").onclick = function(){
     var target = document.getElementById("captureTarget");
     var isDark = document.documentElement.getAttribute("data-theme") === "dark";
