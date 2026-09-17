@@ -151,7 +151,7 @@
     min-height: 48px;
   }
   
-  /* 左側格線控制：頂層保留橫線，子層無橫線 */
+  /* 左側格線控制：頂層有線，子階層無線 */
   .cell.left {
     padding: 6px 12px 6px 6px;
     flex-direction: column;
@@ -295,7 +295,7 @@
   .detail-field:last-child { margin-bottom: 0; }
   .detail-field strong { color: var(--ink-dim); font-size: 11.5px; display: inline-block; width: 70px; }
 
-  /* 甘特圖色塊 (方案 1 + 3) */
+  /* 甘特圖色塊 (進度底色 + 雙端排版) */
   .gantt-bar {
     position: absolute; height: 26px; border-radius: 5px;
     color: #ffffff; cursor: move; border: 1px solid rgba(0,0,0,0.18);
@@ -305,7 +305,6 @@
   }
   .gantt-bar.highlight { outline: 2px solid var(--ink); outline-offset: 1px; }
 
-  /* 底層進度填充 */
   .gantt-progress-fill {
     position: absolute; top: 0; left: 0; bottom: 0;
     background: rgba(0, 0, 0, 0.22);
@@ -313,7 +312,6 @@
     transition: width .2s ease;
   }
 
-  /* 雙端文字容器 */
   .gantt-bar-content {
     position: relative; z-index: 2;
     display: flex; justify-content: space-between; align-items: center;
@@ -328,7 +326,6 @@
     font-size: 10px; opacity: 0.85; margin-left: 8px;
   }
 
-  /* 左右縮放手把 */
   .resize-handle {
     position: absolute; top: 0; bottom: 0; width: 6px;
     cursor: col-resize; z-index: 3;
@@ -337,16 +334,41 @@
   .resize-handle.right { right: 0; }
   .resize-handle:hover { background: rgba(255,255,255,0.4); }
 
-  /* 里程碑菱形節點 */
-  .gantt-milestone {
-    position: absolute; width: 15px; height: 15px;
-    transform: rotate(45deg); border-radius: 2px;
-    cursor: pointer; z-index: 4;
+  /* 方案 A：關鍵里程碑包覆容器與右側文字標籤 */
+  .gantt-milestone-wrap {
+    position: absolute;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    z-index: 4;
+    user-select: none;
+    white-space: nowrap;
+  }
+  .gantt-milestone-diamond {
+    width: 14px;
+    height: 14px;
+    transform: rotate(45deg);
+    border-radius: 2px;
     border: 1px solid rgba(0,0,0,0.25);
     box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+    flex: none;
+    transition: transform 0.15s ease;
   }
-  .gantt-milestone.highlight {
-    outline: 2px solid var(--ink); outline-offset: 2px;
+  .gantt-milestone-wrap:hover .gantt-milestone-diamond {
+    transform: rotate(45deg) scale(1.15);
+  }
+  .gantt-milestone-label {
+    margin-left: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: 0.2px;
+    opacity: 0.9;
+  }
+  .gantt-milestone-wrap.highlight .gantt-milestone-diamond {
+    outline: 2px solid var(--ink);
+    outline-offset: 2px;
   }
 
   /* SVG 相依性圖層 */
@@ -511,7 +533,7 @@
         <select id="fParentSelect"></select>
       </div>
     </div>
-    <!-- 方案 A：前置任務過濾掉系統主幹 -->
+    <!-- 前置任務過濾掉系統主幹 -->
     <div class="field">
       <label>前置任務相依 (Predecessor Dependency)</label>
       <select id="fDependencySelect">
@@ -565,7 +587,7 @@
 (function(){
   "use strict";
 
-  var STORAGE_KEY = "material-core-schema-clickup-v2";
+  var STORAGE_KEY = "material-core-schema-clickup-v3";
   var STATUS_LABEL = { planned:"規劃中", in_progress:"研發中", validating:"驗證中", completed:"已完成", blocked:"暫停/瓶頸" };
   var STATUS_VAR = { planned:"--st-planned", in_progress:"--st-in_progress", validating:"--st-validating", completed:"--st-completed", blocked:"--st-blocked" };
 
@@ -778,16 +800,26 @@
           var leftPx = ((ps - minDate.getTime()) / (24 * 3600 * 1000)) * dayWidth;
           var widthPx = Math.max((((pe - ps) / (24 * 3600 * 1000)) + 1) * dayWidth, 14);
 
-          // 里程碑 ◆ 渲染
+          // 方案 A：關鍵里程碑 ◆ 渲染（右側文字標籤）
           if (node.category === "milestone" || node.start_date === node.end_date){
-            var stone = document.createElement("div");
-            stone.className = "gantt-milestone";
-            stone.dataset.nodeId = node.id;
-            stone.style.left = (leftPx + (widthPx / 2) - 7.5) + "px";
-            stone.style.background = "var(" + (STATUS_VAR[node.status] || "--st-planned") + ")";
-            stone.title = "◆ 里程碑: " + node.topic + " (" + node.start_date + ")";
-            stone.onclick = function(){ openDrawer(node); highlightPair(node.id); };
-            cellRight.appendChild(stone);
+            var stoneWrap = document.createElement("div");
+            stoneWrap.className = "gantt-milestone-wrap mono";
+            stoneWrap.dataset.nodeId = node.id;
+            stoneWrap.style.left = (leftPx + (widthPx / 2) - 7) + "px";
+
+            var diamond = document.createElement("div");
+            diamond.className = "gantt-milestone-diamond";
+            diamond.style.background = "var(" + (STATUS_VAR[node.status] || "--st-planned") + ")";
+            stoneWrap.appendChild(diamond);
+
+            var label = document.createElement("span");
+            label.className = "gantt-milestone-label";
+            label.textContent = node.topic;
+            stoneWrap.appendChild(label);
+
+            stoneWrap.title = "◆ 里程碑: " + node.topic + " (" + node.start_date + ")";
+            stoneWrap.onclick = function(){ openDrawer(node); highlightPair(node.id); };
+            cellRight.appendChild(stoneWrap);
           } else {
             // 甘特長條色塊（進度填充 + 雙端排版）
             var bar = document.createElement("div");
@@ -1057,7 +1089,6 @@
     return cell;
   }
 
-  // ---------- 拖曳移動與邊緣縮放 ----------
   function bindBarDragAndResize(bar, node, dayWidth, minDate){
     var startX, origStartMs, origEndMs;
     var isDragging = false;
@@ -1131,7 +1162,6 @@
     bar.addEventListener("mousedown", onMouseDown);
   }
 
-  // ---------- 前置任務相依連線 ----------
   function drawDependencies(flatList){
     var svg = document.getElementById("dependency-svg");
     var paths = svg.querySelectorAll("path.dep-line");
@@ -1147,8 +1177,8 @@
       var predNode = state.nodes.find(function(n){ return n.id === node.dependency_id; });
       if (!predNode || !predNode.start_date || !node.start_date) return;
 
-      var fromEl = grid.querySelector('.gantt-bar[data-node-id="' + predNode.id + '"], .gantt-milestone[data-node-id="' + predNode.id + '"]');
-      var toEl = grid.querySelector('.gantt-bar[data-node-id="' + node.id + '"], .gantt-milestone[data-node-id="' + node.id + '"]');
+      var fromEl = grid.querySelector('.gantt-bar[data-node-id="' + predNode.id + '"], .gantt-milestone-wrap[data-node-id="' + predNode.id + '"]');
+      var toEl = grid.querySelector('.gantt-bar[data-node-id="' + node.id + '"], .gantt-milestone-wrap[data-node-id="' + node.id + '"]');
 
       if (!fromEl || !toEl) return;
 
@@ -1207,7 +1237,7 @@
   }
 
   function highlightPair(nodeId){
-    document.querySelectorAll(".node.highlight, .gantt-bar.highlight, .gantt-milestone.highlight").forEach(function(el){
+    document.querySelectorAll(".node.highlight, .gantt-bar.highlight, .gantt-milestone-wrap.highlight").forEach(function(el){
       el.classList.remove("highlight");
     });
     document.querySelectorAll('[data-node-id="' + nodeId + '"]').forEach(function(el){
@@ -1260,12 +1290,11 @@
     });
     select.value = editingNode.parent_id || "root";
 
-    // 方案 A：前置任務選單過濾掉系統主幹 (system)
     var depSelect = document.getElementById("fDependencySelect");
     depSelect.innerHTML = '<option value="">無相依任務</option>';
     state.nodes.forEach(function(n){
       if (editingNode && n.id === editingNode.id) return;
-      if (n.category === "system") return; // 豁免主幹，不作為前置任務
+      if (n.category === "system") return; // 豁免主幹
       var opt = document.createElement("option");
       opt.value = n.id;
       opt.textContent = n.topic + " (" + (n.end_date || "無日期") + ")";
@@ -1356,7 +1385,7 @@
     }
   }
 
-  // ---------- 全視圖 PNG 完整截圖修正機制 ----------
+  // ---------- 全視圖 PNG 完整截圖機制 ----------
   document.getElementById("btnExportImage").onclick = function(){
     var target = document.getElementById("captureTarget");
     var wrap = document.getElementById("roadmapWrap");
@@ -1364,15 +1393,12 @@
     var isDark = document.documentElement.getAttribute("data-theme") === "dark";
     var bgColor = isDark ? "#0F2A3A" : "#E7ECEA";
 
-    // 暫存原始樣式與設定
     var origWrapOverflow = wrap.style.overflow;
     var origTargetWidth = target.style.width;
     var origGridWidth = grid.style.width;
 
-    // 計算整個時間軸的真實完整像素寬度
     var fullWidth = Math.max(grid.scrollWidth, wrap.scrollWidth, grid.offsetWidth);
 
-    // 強制展開外層寬度，確保 html2canvas 完整抓取無裁切
     wrap.style.overflow = "visible";
     target.style.width = fullWidth + "px";
     grid.style.width = fullWidth + "px";
@@ -1397,7 +1423,6 @@
     }).catch(function(err){
       alert("截圖產生失敗：" + err.message);
     }).finally(function(){
-      // 截圖結束後立即無縫還原
       wrap.style.overflow = origWrapOverflow;
       target.style.width = origTargetWidth;
       grid.style.width = origGridWidth;
