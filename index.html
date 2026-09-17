@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>材料研發進度與架構結構圖</title>
+<title>材料研發進度圖</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -20,10 +20,10 @@
     --accent: #2E6E7E;
     --danger: #B0503F;
     --st-planned: #6E8492;
-    --st-active: #C97F1E;
+    --st-in_progress: #C97F1E;
     --st-validating: #2E8FA1;
-    --st-done: #4C8F5B;
-    --st-hold: #B0503F;
+    --st-completed: #4C8F5B;
+    --st-blocked: #B0503F;
     --shadow: 0 1px 0 rgba(22,48,59,0.06);
     color-scheme: light;
   }
@@ -34,8 +34,8 @@
       --ink: #E9F1F3; --ink-dim: #93AEBB;
       --line: rgba(233,241,243,0.16); --line-strong: rgba(233,241,243,0.32);
       --accent: #6FC3D6; --danger: #E08571;
-      --st-planned: #8CA0AC; --st-active: #E8A33D; --st-validating: #5EC8D8;
-      --st-done: #7FB77E; --st-hold: #D98572;
+      --st-planned: #8CA0AC; --st-in_progress: #E8A33D; --st-validating: #5EC8D8;
+      --st-completed: #7FB77E; --st-blocked: #D98572;
       --shadow: 0 1px 0 rgba(0,0,0,0.3);
       color-scheme: dark;
     }
@@ -46,8 +46,8 @@
     --ink: #E9F1F3; --ink-dim: #93AEBB;
     --line: rgba(233,241,243,0.16); --line-strong: rgba(233,241,243,0.32);
     --accent: #6FC3D6; --danger: #E08571;
-    --st-planned: #8CA0AC; --st-active: #E8A33D; --st-validating: #5EC8D8;
-    --st-done: #7FB77E; --st-hold: #D98572;
+    --st-planned: #8CA0AC; --st-in_progress: #E8A33D; --st-validating: #5EC8D8;
+    --st-completed: #7FB77E; --st-blocked: #D98572;
     --shadow: 0 1px 0 rgba(0,0,0,0.3);
     color-scheme: dark;
   }
@@ -64,38 +64,40 @@
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
   }
-  .mono { font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace; }
+  .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; }
 
   header {
     position: sticky; top: 0; z-index: 20;
     display: flex; align-items: center; justify-content: space-between;
     gap: 12px; flex-wrap: wrap;
-    padding: 16px 24px;
+    padding: 14px 24px;
     background: color-mix(in srgb, var(--bg) 88%, transparent);
     backdrop-filter: blur(6px);
     border-bottom: 1px solid var(--line);
   }
-  header h1 { font-size: 18px; margin: 0; font-weight: 600; letter-spacing: 0.2px; }
+  .title-group { display: flex; align-items: center; gap: 8px; }
+  header h1 { font-size: 18px; margin: 0; font-weight: 600; cursor: pointer; border-bottom: 1px dashed transparent; }
+  header h1:hover { border-bottom-color: var(--accent); }
   header .sub { font-size: 12px; color: var(--ink-dim); margin-top: 2px; }
   .toolbar { display: flex; gap: 8px; flex-wrap: wrap; }
   button {
     font: inherit; cursor: pointer;
     border: 1px solid var(--line-strong);
     background: var(--surface-2); color: var(--ink);
-    padding: 7px 12px; border-radius: 6px; font-size: 13px;
-    transition: border-color .15s ease, transform .1s ease;
+    padding: 6px 11px; border-radius: 6px; font-size: 13px;
+    transition: all .15s ease;
   }
   button:hover { border-color: var(--accent); }
   button:active { transform: scale(0.97); }
   button.primary { background: var(--accent); color: var(--surface-2); border-color: var(--accent); }
   button.ghost { background: transparent; }
-  button.small { padding: 3px 8px; font-size: 12px; border-radius: 5px; }
+  button.small { padding: 3px 7px; font-size: 12px; border-radius: 5px; }
   button.icon { padding: 2px 6px; line-height: 1; }
 
-  main { padding: 24px; max-width: 1380px; margin: 0 auto; }
+  main { padding: 20px; max-width: 1440px; margin: 0 auto; }
 
   section.panel {
-    background: color-mix(in srgb, var(--surface) 92%, transparent);
+    background: color-mix(in srgb, var(--surface) 94%, transparent);
     border: 1px solid var(--line);
     border-radius: 10px;
     padding: 20px;
@@ -110,8 +112,8 @@
   .roadmap-grid {
     position: relative;
     display: grid;
-    grid-template-columns: 340px 1fr;
-    min-width: 800px;
+    grid-template-columns: 380px 1fr; /* 放寬左欄，避免文字擠壓 */
+    min-width: 880px;
   }
   .cell {
     border-top: 1px solid var(--line);
@@ -120,9 +122,12 @@
   }
   .roadmap-grid > .cell:nth-child(-n+2) { border-top: none; }
   .cell.left { padding: 4px 10px 4px 4px; gap: 6px; }
-  .cell.right { position: relative; padding: 0 8px; }
-  .cell.header-left { color: var(--ink-dim); font-size: 12px; font-weight: 600; }
-  .cell.header-right { min-height: 30px; position: relative; }
+  
+  /* 右側欄加入 overflow:hidden，徹底杜絕月份刻度往左疊圖的問題 */
+  .cell.right { position: relative; padding: 0 24px 0 0; overflow: hidden; }
+  
+  .cell.header-left { color: var(--ink-dim); font-size: 12px; font-weight: 600; z-index: 2; background: inherit; }
+  .cell.header-right { min-height: 32px; position: relative; overflow: hidden; }
 
   .indent { display: inline-block; flex: none; }
   .node {
@@ -142,15 +147,17 @@
     font-size: 10px; color: var(--ink-dim); background: var(--surface);
     padding: 1px 5px; border-radius: 4px; border: 1px solid var(--line); margin-left: 2px;
   }
+  
+  /* 操作按鈕組 */
   .row-actions { display: none; gap: 3px; flex: none; }
   .cell.left:hover .row-actions { display: inline-flex; }
 
   .month-tick {
     position: absolute; top: 0; bottom: 0; font-size: 11px; color: var(--ink-dim);
-    border-left: 1px solid var(--line); padding-left: 4px;
+    border-left: 1px solid var(--line); padding-left: 4px; pointer-events: none;
   }
   .bg-gridline {
-    position: absolute; top: 0; bottom: 0; width: 1px; background: var(--line);
+    position: absolute; top: 0; bottom: 0; width: 1px; background: var(--line); pointer-events: none;
   }
   .gantt-bar {
     position: absolute; top: 11px; height: 26px; border-radius: 5px;
@@ -171,7 +178,7 @@
   .legend span.item { display: inline-flex; align-items: center; gap: 6px; }
 
   .empty-hint {
-    color: var(--ink-dim); font-size: 13px; padding: 20px; text-align: center;
+    color: var(--ink-dim); font-size: 13px; padding: 24px; text-align: center;
     border: 1px dashed var(--line); border-radius: 8px;
   }
 
@@ -182,7 +189,7 @@
   }
   .overlay.open { opacity: 1; pointer-events: auto; }
   .drawer {
-    position: fixed; top: 0; right: 0; height: 100%; width: min(440px, 94vw);
+    position: fixed; top: 0; right: 0; height: 100%; width: min(450px, 94vw);
     background: var(--surface-2); border-left: 1px solid var(--line);
     transform: translateX(100%); transition: transform .2s ease;
     z-index: 31; padding: 24px; overflow-y: auto;
@@ -201,7 +208,7 @@
   .row { display: flex; gap: 10px; }
   .row .field { flex: 1; }
 
-  /* JSON 編輯檢視對話框 */
+  /* JSON 編輯視窗 */
   #jsonModal {
     display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
     width: min(720px, 90vw); background: var(--surface-2); border: 1px solid var(--line-strong);
@@ -214,16 +221,22 @@
 
   footer { text-align: center; font-size: 11.5px; color: var(--ink-dim); padding: 12px 24px 32px; }
 </style>
+<!-- 引入 html2canvas 支援 PPT 截圖匯出 -->
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
 <body>
 
 <header>
   <div>
-    <h1 id="projectTitle">材料開發進度圖</h1>
-    <div class="sub" id="projectMeta">心智圖節點與時間軸色塊在同一列上，天生對齊</div>
+    <div class="title-group">
+      <h1 id="projectTitle" title="點擊直接修改專案名稱">新材料研發進度圖</h1>
+      <button class="icon small ghost" id="btnEditTitle" title="修改專案名稱">✎</button>
+    </div>
+    <div class="sub" id="projectMeta">最後更新日期: - ｜ 點選節點或色塊檢視配方與物性</div>
   </div>
   <div class="toolbar">
     <button class="ghost small" id="btnTheme" title="切換淺色／深色">◐ 切換主題</button>
+    <button class="small" id="btnExportImage" title="匯出高畫質圖片至 PPT 使用">📷 匯出簡報圖 (PNG)</button>
     <button class="small" id="btnEditJson">檢視 / 貼上 JSON</button>
     <button class="small" id="btnExport">匯出 JSON</button>
     <button class="small" id="btnImport">匯入 JSON</button>
@@ -233,7 +246,7 @@
 </header>
 
 <main>
-  <section class="panel">
+  <section class="panel" id="captureTarget">
     <h2>研發階層／配方與驗證（左）與排程期程（右）—— 同列嚴密對齊</h2>
     <div class="roadmap-wrap">
       <div class="roadmap-grid" id="roadmapGrid"></div>
@@ -243,7 +256,7 @@
 </main>
 
 <footer>
-  單一 HTML 檔案，支援部署於 GitHub Pages；完全相容 Core Schema，隨時點擊「匯出 JSON」備份與版本控制。
+  單一 HTML 檔案，支援部署於 GitHub Pages；隨時可匯出 JSON 或點擊「📷 匯出簡報圖」貼至 PPT 會議簡報。
 </footer>
 
 <!-- 編輯抽屜 (Drawer) -->
@@ -253,7 +266,7 @@
   <form id="editForm">
     <div class="field">
       <label>節點名稱 (Topic)</label>
-      <input type="text" id="fTopic" required>
+      <input type="text" id="fTopic" required placeholder="例如：主配方試驗 / 耐熱性評估">
     </div>
     <div class="row">
       <div class="field">
@@ -282,8 +295,9 @@
         <input type="number" id="fProgress" min="0" max="100" value="0">
       </div>
       <div class="field">
-        <label>父節點 ID (Parent ID)</label>
-        <input type="text" id="fParentId" placeholder="root 或其他節點 ID">
+        <label>隸屬上層項目 (Parent)</label>
+        <!-- 改為下拉選單，直觀選擇上層 -->
+        <select id="fParentSelect"></select>
       </div>
     </div>
     <div class="row">
@@ -297,7 +311,7 @@
       </div>
     </div>
     
-    <!-- Core Schema Details 欄位 -->
+    <!-- 材料研發專屬參數 -->
     <div class="field">
       <label>關鍵配方比 / 工藝參數 (params)</label>
       <textarea id="fParams" placeholder="例如：主劑/硬化劑=100:15，固化條件 120°C/2hr"></textarea>
@@ -323,7 +337,7 @@
 
 <!-- JSON 編輯與貼上對話框 -->
 <div id="jsonModal">
-  <h3 style="margin-bottom:12px; font-size:15px;">直接編輯 / 載入 Core Schema JSON</h3>
+  <h3 style="margin-bottom:12px; font-size:15px;">直接編輯 / 貼上 Core Schema JSON</h3>
   <textarea id="jsonRawText" spellcheck="false"></textarea>
   <div style="display:flex; justify-content: flex-end; gap:8px; margin-top:12px;">
     <button class="ghost small" onclick="closeJsonModal()">取消</button>
@@ -335,79 +349,18 @@
 (function(){
   "use strict";
 
-  var STORAGE_KEY = "material-core-schema-v1";
+  var STORAGE_KEY = "material-core-schema-blank-v2";
   var STATUS_LABEL = { planned:"規劃中", in_progress:"研發中", validating:"驗證中", completed:"已完成", blocked:"暫停/瓶頸" };
-  var STATUS_VAR = { planned:"--st-planned", in_progress:"--st-active", validating:"--st-validating", completed:"--st-done", blocked:"--st-hold" };
+  var STATUS_VAR = { planned:"--st-planned", in_progress:"--st-in_progress", validating:"--st-validating", completed:"--st-completed", blocked:"--st-blocked" };
 
   function uid(){ return "node_" + Date.now().toString(36) + Math.random().toString(36).slice(2,5); }
 
-  // 初始預設種子資料（完全符合 Core Schema）
+  // 預設為純淨空白專案
   function seedData(){
     return {
-      "project": "高Tg耐熱環氧樹脂複合材料開發",
-      "updated_at": "2026-09-17",
-      "nodes": [
-        {
-          "id": "root_01",
-          "parent_id": "root",
-          "topic": "耐熱樹脂體系開發",
-          "category": "system",
-          "start_date": "2026-09-01",
-          "end_date": "2026-10-31",
-          "progress": 30,
-          "status": "in_progress",
-          "details": {
-            "params": "基準體系：雙酚A型環氧 (DGEBA) + 芳香胺固化劑",
-            "metrics": "目標：Tg ≥ 180°C，耐熱裂解溫度 > 320°C",
-            "notes": "專案核心主幹"
-          }
-        },
-        {
-          "id": "form_01",
-          "parent_id": "root_01",
-          "topic": "配方 A (DDS 硬化劑配比篩選)",
-          "category": "formulation",
-          "start_date": "2026-09-01",
-          "end_date": "2026-09-18",
-          "progress": 100,
-          "status": "completed",
-          "details": {
-            "params": "環氧當量比 1.0 : 0.95，固化條件 180°C/2hr",
-            "metrics": "實測 DSC Tg: 184°C",
-            "notes": "反應完全，但黏度較高，加工窗口偏窄"
-          }
-        },
-        {
-          "id": "form_02",
-          "parent_id": "root_01",
-          "topic": "配方 B (活性稀釋劑降黏試驗)",
-          "category": "formulation",
-          "start_date": "2026-09-19",
-          "end_date": "2026-10-05",
-          "progress": 25,
-          "status": "in_progress",
-          "details": {
-            "params": "添加 5wt% 脂環族環氧稀釋劑",
-            "metrics": "預估流體黏度降至 1200 cps",
-            "notes": "[推估] 評估稀釋劑是否造成耐熱性衰退"
-          }
-        },
-        {
-          "id": "test_01",
-          "parent_id": "form_02",
-          "topic": "DMA 動態熱機械分析",
-          "category": "testing",
-          "start_date": "2026-10-06",
-          "end_date": "2026-10-15",
-          "progress": 0,
-          "status": "planned",
-          "details": {
-            "params": "升溫速率 3°C/min，頻率 1Hz",
-            "metrics": "測量損耗因子 Tan Delta 峰值",
-            "notes": "[推估] 樣條成型後排測"
-          }
-        }
-      ]
+      "project": "新材料研發專案",
+      "updated_at": new Date().toISOString().split("T")[0],
+      "nodes": []
     };
   }
 
@@ -447,7 +400,7 @@
     }
     traverse("root", 0);
 
-    // 防呆：若有孤立節點（parent_id 找不到），附加在最下方
+    // 防呆處理
     var visited = {};
     result.forEach(function(r){ visited[r.node.id] = true; });
     nodes.forEach(function(n){
@@ -459,7 +412,7 @@
 
   // ---------- 主要繪製邏輯 ----------
   function renderAll(){
-    document.getElementById("projectTitle").textContent = state.project || "未命名材料專案";
+    document.getElementById("projectTitle").textContent = state.project || "新材料研發專案";
     document.getElementById("projectMeta").textContent = "最後更新日期: " + (state.updated_at || "-") + " ｜ 點選節點或色塊檢視配方與物性";
 
     var grid = document.getElementById("roadmapGrid");
@@ -467,28 +420,33 @@
 
     var flatList = getFlattenedNodes(state.nodes || []);
 
-    // 彙整具備起訖日期的節點計算時間軸尺規
+    // 計算時間軸刻度
     var datedNodes = flatList.map(function(item){ return item.node; }).filter(function(n){ return n.start_date && n.end_date; });
     var minDate, maxDate, totalMs, hasScale = false;
     if (datedNodes.length){
       hasScale = true;
+      // 起訖保留前後 7 天邊界緩衝
       minDate = addDays(new Date(Math.min.apply(null, datedNodes.map(function(n){ return new Date(n.start_date).getTime(); }))), -7);
-      maxDate = addDays(new Date(Math.max.apply(null, datedNodes.map(function(n){ return new Date(n.end_date).getTime(); }))), 7);
+      maxDate = addDays(new Date(Math.max.apply(null, datedNodes.map(function(n){ return new Date(n.end_date).getTime(); }))), 10);
       totalMs = maxDate.getTime() - minDate.getTime();
     }
 
-    // 頂部表頭列
+    // 表頭列：徹底分隔左欄與右欄
     grid.appendChild(makeCell("left header-left", "材料架構 / 實驗階段 (Topic)"));
     var headerRight = makeCell("right header-right", "");
     if (hasScale){
       var cursor = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
+      // 月份刻度嚴格在右欄繪製
       while (cursor <= maxDate){
-        var pct = ((cursor.getTime() - minDate.getTime()) / totalMs) * 100;
-        var tick = document.createElement("div");
-        tick.className = "month-tick mono";
-        tick.style.left = pct + "%";
-        tick.textContent = cursor.getFullYear() + "/" + (cursor.getMonth()+1) + "月";
-        headerRight.appendChild(tick);
+        var curMs = cursor.getTime();
+        if (curMs >= minDate.getTime()){
+          var pct = ((curMs - minDate.getTime()) / totalMs) * 100;
+          var tick = document.createElement("div");
+          tick.className = "month-tick mono";
+          tick.style.left = pct + "%";
+          tick.textContent = cursor.getFullYear() + "/" + (cursor.getMonth()+1) + "月";
+          headerRight.appendChild(tick);
+        }
         cursor = new Date(cursor.getFullYear(), cursor.getMonth()+1, 1);
       }
     }
@@ -497,19 +455,19 @@
     if (!flatList.length){
       grid.appendChild(makeCell("left", ""));
       var emptyRight = makeCell("right", "");
-      emptyRight.innerHTML = '<div class="empty-hint" style="width:100%">尚無任何研發節點，點右上角「＋ 新增系統主幹」開始建立。</div>';
+      emptyRight.innerHTML = '<div class="empty-hint" style="width:100%">目前尚無任何研發節點，點擊右上角「＋ 新增系統主幹」開始建立。</div>';
       grid.appendChild(emptyRight);
     }
 
-    // 繪製每一筆節點（左欄樹狀 + 右欄甘特圖色塊）
-    flatList.forEach(function(item){
+    // 繪製每一筆節點
+    flatList.forEach(function(item, index){
       var node = item.node;
       var depth = item.depth;
 
-      // 1. 左側欄：樹狀節點與操作按鈕
-      grid.appendChild(buildLeftCell(node, depth));
+      // 1. 左側欄：樹狀節點 + 操作與排序按鈕
+      grid.appendChild(buildLeftCell(node, depth, index, flatList.length));
 
-      // 2. 右側欄：時間軸色塊
+      // 2. 右側欄：甘特圖色塊
       var cellRight = makeCell("right", "");
       if (hasScale){
         addGridlines(cellRight, minDate, maxDate, totalMs);
@@ -520,7 +478,7 @@
           bar.className = "gantt-bar mono";
           bar.dataset.nodeId = node.id;
           bar.style.left = (((ps - minDate.getTime())/totalMs)*100) + "%";
-          bar.style.width = Math.max((((pe - ps)/totalMs)*100), 1.2) + "%";
+          bar.style.width = Math.max((((pe - ps)/totalMs)*100), 1.5) + "%";
           bar.style.background = "var(" + (STATUS_VAR[node.status] || "--st-planned") + ")";
           bar.textContent = node.topic;
           bar.title = node.topic + " [" + (STATUS_LABEL[node.status] || node.status) + "] " + node.start_date + " → " + node.end_date;
@@ -531,7 +489,7 @@
       grid.appendChild(cellRight);
     });
 
-    // 繪製「今天」時間標記線
+    // 「今天」紅線
     if (hasScale){
       var today = new Date();
       if (today >= minDate && today <= maxDate){
@@ -552,11 +510,14 @@
   function addGridlines(container, minDate, maxDate, totalMs){
     var cursor = new Date(minDate.getFullYear(), minDate.getMonth(), 1);
     while (cursor <= maxDate){
-      var pct = ((cursor.getTime() - minDate.getTime()) / totalMs) * 100;
-      var line = document.createElement("div");
-      line.className = "bg-gridline";
-      line.style.left = pct + "%";
-      container.appendChild(line);
+      var curMs = cursor.getTime();
+      if (curMs >= minDate.getTime()){
+        var pct = ((curMs - minDate.getTime()) / totalMs) * 100;
+        var line = document.createElement("div");
+        line.className = "bg-gridline";
+        line.style.left = pct + "%";
+        container.appendChild(line);
+      }
       cursor = new Date(cursor.getFullYear(), cursor.getMonth()+1, 1);
     }
   }
@@ -577,7 +538,8 @@
     grid.appendChild(line);
   }
 
-  function buildLeftCell(node, depth){
+  // 建置左側節點欄（含 ▲ / ▼ 排序）
+  function buildLeftCell(node, depth, index, totalCount){
     var cell = makeCell("left", "");
     var indent = document.createElement("span");
     indent.className = "indent";
@@ -608,24 +570,70 @@
     wrap.onclick = function(){ openDrawer(node); highlightPair(node.id); };
     cell.appendChild(wrap);
 
+    // 操作工具列：新增子項、上移、下移、編輯
     var actions = document.createElement("span");
     actions.className = "row-actions";
     
-    // 快捷：新增子節點按鈕
+    // 上移按鈕
+    var upBtn = document.createElement("button");
+    upBtn.className = "icon small ghost"; upBtn.textContent = "▲";
+    upBtn.title = "向上移動順序";
+    upBtn.onclick = function(ev){ ev.stopPropagation(); moveNodeOrder(node.id, -1); };
+    actions.appendChild(upBtn);
+
+    // 下移按鈕
+    var downBtn = document.createElement("button");
+    downBtn.className = "icon small ghost"; downBtn.textContent = "▼";
+    downBtn.title = "向下移動順序";
+    downBtn.onclick = function(ev){ ev.stopPropagation(); moveNodeOrder(node.id, 1); };
+    actions.appendChild(downBtn);
+
+    // 快捷新增子節點
     var addSubBtn = document.createElement("button");
     addSubBtn.className = "icon small ghost"; addSubBtn.textContent = "＋";
-    addSubBtn.title = "在此節點下新增子項目";
+    addSubBtn.title = "在此項目下新增子階段";
     addSubBtn.onclick = function(ev){ ev.stopPropagation(); openDrawer(null, node.id); };
     actions.appendChild(addSubBtn);
 
+    // 編輯按鈕
     var editBtn = document.createElement("button");
     editBtn.className = "icon small ghost"; editBtn.textContent = "✎";
-    editBtn.title = "編輯節點詳情";
+    editBtn.title = "編輯詳細內容";
     editBtn.onclick = function(ev){ ev.stopPropagation(); openDrawer(node); };
     actions.appendChild(editBtn);
 
     cell.appendChild(actions);
     return cell;
+  }
+
+  // ---------- 節點順序調整邏輯 ----------
+  function moveNodeOrder(nodeId, direction){
+    var idx = state.nodes.findIndex(function(n){ return n.id === nodeId; });
+    if (idx === -1) return;
+    var targetNode = state.nodes[idx];
+    
+    // 找出所有同層級的兄弟節點
+    var siblings = state.nodes.filter(function(n){
+      var p1 = n.parent_id || "root";
+      var p2 = targetNode.parent_id || "root";
+      return p1 === p2;
+    });
+
+    var sIdx = siblings.findIndex(function(n){ return n.id === nodeId; });
+    var targetSIdx = sIdx + direction;
+
+    if (targetSIdx < 0 || targetSIdx >= siblings.length) return; // 已經在最頂或最底
+
+    var swapTarget = siblings[targetSIdx];
+    var globalTargetIdx = state.nodes.findIndex(function(n){ return n.id === swapTarget.id; });
+
+    // 交換全域 nodes 陣列中的位置
+    var temp = state.nodes[idx];
+    state.nodes[idx] = state.nodes[globalTargetIdx];
+    state.nodes[globalTargetIdx] = temp;
+
+    saveState();
+    renderAll();
   }
 
   function highlightPair(nodeId){
@@ -666,12 +674,24 @@
       details: { params: "", metrics: "", notes: "" }
     };
 
+    // 動態組裝「隸屬上層項目」下拉選單
+    var select = document.getElementById("fParentSelect");
+    select.innerHTML = '<option value="root">最上層主幹 (Root)</option>';
+    state.nodes.forEach(function(n){
+      // 避免自己選自己作為父節點
+      if (editingNode && n.id === editingNode.id) return;
+      var opt = document.createElement("option");
+      opt.value = n.id;
+      opt.textContent = (n.category === "system" ? "【主幹】" : "— ") + n.topic;
+      select.appendChild(opt);
+    });
+    select.value = editingNode.parent_id || "root";
+
     document.getElementById("drawerTitle").textContent = isNew ? "新增研發節點" : "編輯研發節點";
     document.getElementById("fTopic").value = editingNode.topic || "";
     document.getElementById("fCategory").value = editingNode.category || "formulation";
     document.getElementById("fStatus").value = editingNode.status || "planned";
     document.getElementById("fProgress").value = editingNode.progress || 0;
-    document.getElementById("fParentId").value = editingNode.parent_id || "root";
     document.getElementById("fStart").value = editingNode.start_date || "";
     document.getElementById("fEnd").value = editingNode.end_date || "";
 
@@ -697,7 +717,7 @@
     editingNode.category = document.getElementById("fCategory").value;
     editingNode.status = document.getElementById("fStatus").value;
     editingNode.progress = parseInt(document.getElementById("fProgress").value, 10) || 0;
-    editingNode.parent_id = document.getElementById("fParentId").value.trim() || "root";
+    editingNode.parent_id = document.getElementById("fParentSelect").value;
     editingNode.start_date = document.getElementById("fStart").value;
     editingNode.end_date = document.getElementById("fEnd").value;
     editingNode.details = {
@@ -719,7 +739,7 @@
   document.getElementById("overlay").onclick = closeDrawer;
 
   document.getElementById("btnDelete").onclick = function(){
-    if (!confirm("確定要刪除「" + editingNode.topic + "」嗎？此動作將連同該節點一併移除。")) return;
+    if (!confirm("確定要刪除「" + editingNode.topic + "」嗎？")) return;
     state.nodes = state.nodes.filter(function(n){ return n.id !== editingNode.id; });
     saveState();
     renderAll();
@@ -727,6 +747,41 @@
   };
 
   document.getElementById("btnAddRoot").onclick = function(){ openDrawer(null, "root"); };
+
+  // ---------- 專案名稱原地修改 ----------
+  function promptEditProjectTitle(){
+    var newTitle = prompt("請輸入專案名稱：", state.project || "");
+    if (newTitle !== null && newTitle.trim() !== ""){
+      state.project = newTitle.trim();
+      state.updated_at = new Date().toISOString().split("T")[0];
+      saveState();
+      renderAll();
+    }
+  }
+  document.getElementById("projectTitle").onclick = promptEditProjectTitle;
+  document.getElementById("btnEditTitle").onclick = promptEditProjectTitle;
+
+  // ---------- 方案 A：匯出 PPT 簡報圖 (PNG) ----------
+  document.getElementById("btnExportImage").onclick = function(){
+    var target = document.getElementById("captureTarget");
+    var origBg = getComputedStyle(document.body).backgroundColor;
+
+    // 使用 2 倍縮放確保在 PPT 投影時保持視網膜清晰度
+    html2canvas(target, {
+      scale: 2,
+      backgroundColor: origBg,
+      useCORS: true
+    }).then(function(canvas){
+      var a = document.createElement("a");
+      a.download = (state.project || "材料研發進度圖") + ".png";
+      a.href = canvas.toDataURL("image/png");
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }).catch(function(err){
+      alert("截圖產生失敗：" + err.message);
+    });
+  };
 
   // ---------- 檢視與直接貼上 JSON 對話框 ----------
   window.closeJsonModal = function(){
