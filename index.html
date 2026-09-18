@@ -202,36 +202,42 @@
   }
 
   .node-row {
-    display: flex; align-items: center; gap: 6px; width: 100%; position: relative;
+    display: flex; align-items: center; gap: 4px; width: 100%; position: relative;
   }
 
+  /* 折疊按鈕與葉節點對齊佔位符 */
   .collapse-btn {
-    border: none; background: transparent; padding: 2px 5px;
+    width: 18px; height: 18px; border: none; background: transparent; padding: 0;
     font-size: 11px; cursor: pointer; color: var(--ink-dim); border-radius: 4px;
+    display: inline-flex; align-items: center; justify-content: center; flex: none;
     transition: transform 0.15s ease, color 0.15s ease;
   }
-  .collapse-btn:hover { color: var(--accent); background: rgba(0,0,0,0.04); }
+  .collapse-btn:hover { color: var(--accent); background: rgba(0,0,0,0.06); }
+  .leaf-spacer {
+    width: 18px; height: 18px; flex: none; display: inline-block;
+  }
 
-  /* 樹狀階層引線 */
+  /* 樹狀階層引線（每階加大至 26px） */
   .tree-indent-wrap {
     display: inline-flex; align-items: center; height: 36px; flex: none;
   }
   .tree-unit {
-    width: 22px; height: 100%; position: relative; flex: none;
+    width: 26px; height: 100%; position: relative; flex: none;
   }
   .tree-unit.line::before {
-    content: ""; position: absolute; top: -14px; bottom: -14px; left: 10px; width: 2px;
+    content: ""; position: absolute; top: -14px; bottom: -14px; left: 12px; width: 2px;
     background: var(--accent); opacity: 0.8;
   }
   .tree-unit.branch::before {
-    content: ""; position: absolute; top: -14px; height: calc(50% + 14px); left: 10px; width: 2px;
+    content: ""; position: absolute; top: -14px; height: calc(50% + 14px); left: 12px; width: 2px;
     background: var(--accent); opacity: 0.8;
   }
   .tree-unit.branch::after {
-    content: ""; position: absolute; top: 50%; left: 10px; width: 12px; height: 2px;
+    content: ""; position: absolute; top: 50%; left: 12px; width: 14px; height: 2px;
     background: var(--accent); opacity: 0.8; transform: translateY(-50%);
   }
 
+  /* 節點膠囊樣式 */
   .node {
     display: inline-flex; align-items: center; gap: 7px;
     background: var(--surface-2); border: 1px solid var(--line);
@@ -240,10 +246,17 @@
     box-shadow: var(--shadow); overflow: hidden;
   }
   .node:hover { border-color: var(--accent); }
-  .node.system-node { font-weight: 600; border-width: 1.5px; }
   .node.highlight { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+  
+  /* 依階層深度區分外觀 */
+  .node.depth-0 { font-weight: 600; border-width: 1.5px; }
+  .node.depth-1 { font-weight: 600; border-color: var(--line-strong); }
+  .node.depth-2, .node.depth-3 { font-weight: 500; font-size: 12.5px; opacity: 0.96; }
+
   .dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
   .node .label { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .node.depth-2 .label, .node.depth-3 .label { font-size: 12.5px; }
+
   .node .progress-pill {
     font-size: 10px; color: var(--ink-dim); background: var(--surface);
     padding: 1px 5px; border-radius: 4px; border: 1px solid var(--line); margin-left: 2px;
@@ -436,7 +449,7 @@
       <h1 id="projectTitle" title="點擊修改專案名稱">新材料研發專案</h1>
       <button class="icon small ghost" id="btnEditTitle" title="修改專案名稱">✎</button>
     </div>
-    <div class="sub" id="projectMeta">最後更新: - ｜ 支援 GitHub API 一鍵同步與 Ctrl+Z 復原</div>
+    <div class="sub" id="projectMeta">最後更新: - ｜ 階層縮排已優化，支援 GitHub API 一鍵同步</div>
   </div>
   <div class="toolbar">
     <button class="ghost small" id="btnUndo" title="復原 (Ctrl+Z)" disabled>↩ 復原</button>
@@ -482,7 +495,7 @@
 </main>
 
 <footer>
-  單一 HTML 檔案，支援部署於 GitHub Pages；可透過 GitHub REST API 一鍵提交備份至 GitHub 倉庫。
+  單一 HTML 檔案，支援部署於 GitHub Pages；階層引線貫穿與縮排全面優化。
 </footer>
 
 <!-- 編輯節點抽屜 (Drawer) -->
@@ -572,12 +585,12 @@
   </div>
   <form id="githubConfigForm">
     <div class="field">
-      <label>GitHub 帳號名稱 (Owner / Username)</label>
-      <input type="text" id="ghOwner" required placeholder="例如：your-github-id">
+      <label>GitHub 帳號名稱 (Owner)</label>
+      <input type="text" id="ghOwner" required placeholder="例如：keithliaoliaoliao-web">
     </div>
     <div class="field">
-      <label>倉庫名稱 (Repository Name)</label>
-      <input type="text" id="ghRepo" required placeholder="例如：material-rd-roadmap">
+      <label>倉庫名稱 (Repo)</label>
+      <input type="text" id="ghRepo" required placeholder="例如：material-roadmap.html">
     </div>
     <div class="row">
       <div class="field">
@@ -591,7 +604,7 @@
     </div>
     <div class="field">
       <label>Personal Access Token (PAT 金鑰)</label>
-      <input type="password" id="ghToken" required placeholder="github_pat_ 或 ghp_ 開頭之金鑰">
+      <input type="password" id="ghToken" required placeholder="ghp_ 開頭之金鑰">
     </div>
     <div style="display:flex; justify-content: flex-end; gap:8px; margin-top:14px;">
       <button type="button" class="ghost small" onclick="closeGithubConfigModal()">取消</button>
@@ -666,7 +679,7 @@
 (function(){
   "use strict";
 
-  var STORAGE_KEY = "material-core-schema-clickup-v8";
+  var STORAGE_KEY = "material-core-schema-clickup-v9";
   var GITHUB_CONFIG_KEY = "material-rd-github-config";
   var STATUS_LABEL = { planned:"規劃中", in_progress:"研發中", validating:"驗證中", completed:"已完成", blocked:"暫停/瓶頸" };
   var STATUS_VAR = { planned:"--st-planned", in_progress:"--st-in_progress", validating:"--st-validating", completed:"--st-completed", blocked:"--st-blocked" };
@@ -691,7 +704,7 @@
   var viewMode = "month";
   var editingStickyId = null;
 
-  // ---------- Undo / Redo 操作歷史堆疊 (20 步) ----------
+  // ---------- Undo / Redo 操作歷史堆疊 ----------
   var historyStack = [];
   var historyIndex = -1;
   var MAX_HISTORY = 20;
@@ -752,7 +765,6 @@
 
   // ---------- 三層式資料初始化 ----------
   function initApp(){
-    // 1. 檢查網址 Hash (#data=...)
     var hash = window.location.hash;
     if (hash && hash.indexOf("#data=") === 0){
       try {
@@ -768,11 +780,10 @@
           return;
         }
       } catch(e){
-        console.warn("URL Hash 解析失敗，改讀本機快取", e);
+        console.warn("URL Hash 解析失敗", e);
       }
     }
 
-    // 2. 讀取瀏覽器 localStorage
     var localRaw = null;
     try { localRaw = localStorage.getItem(STORAGE_KEY); } catch(e){}
     if (localRaw){
@@ -790,7 +801,6 @@
       } catch(e){}
     }
 
-    // 3. 嘗試讀取 GitHub 根目錄的 data.json 兜底
     fetch("./data.json")
       .then(function(res){
         if (!res.ok) throw new Error("無 data.json");
@@ -834,7 +844,7 @@
     }
   }
 
-  // ---------- 網址一鍵分享 (URL Hash) ----------
+  // ---------- 網址一鍵分享 ----------
   document.getElementById("btnShareLink").onclick = function(){
     try {
       var jsonStr = JSON.stringify(state);
@@ -843,7 +853,7 @@
       
       if (navigator.clipboard && navigator.clipboard.writeText){
         navigator.clipboard.writeText(url).then(function(){
-          alert("✓ 分享連結已複製到剪貼簿！\n傳送此連結給他人，對方即可直接檢視目前的進度表。");
+          alert("✓ 分享連結已複製到剪貼簿！");
         });
       } else {
         prompt("請複製以下分享網址：", url);
@@ -853,7 +863,7 @@
     }
   };
 
-  // ---------- GitHub REST API 一鍵自動同步功能 ----------
+  // ---------- GitHub REST API 一鍵同步 ----------
   function getGithubConfig(){
     try {
       var raw = localStorage.getItem(GITHUB_CONFIG_KEY);
@@ -917,7 +927,6 @@
 
     var apiUrl = "https://api.github.com/repos/" + owner + "/" + repo + "/contents/" + path + "?ref=" + branch;
 
-    // 1. 先抓取該檔案現有的 SHA
     fetch(apiUrl, {
       method: "GET",
       headers: {
@@ -926,12 +935,8 @@
       }
     })
     .then(function(res){
-      if (res.status === 404){
-        return null; // 檔案尚未存在
-      }
-      if (!res.ok){
-        throw new Error("查詢檔案失敗 (HTTP " + res.status + ")");
-      }
+      if (res.status === 404) return null;
+      if (!res.ok) throw new Error("查詢檔案失敗 (HTTP " + res.status + ")");
       return res.json();
     })
     .then(function(fileData){
@@ -947,7 +952,6 @@
       };
       if (sha) putBody.sha = sha;
 
-      // 2. 發送 PUT 請求建立或覆蓋檔案
       return fetch("https://api.github.com/repos/" + owner + "/" + repo + "/contents/" + path, {
         method: "PUT",
         headers: {
@@ -966,7 +970,7 @@
       }
       return putRes.json();
     })
-    .then(function(result){
+    .then(function(){
       alert("🎉 成功同步！進度資料已自動提交至 GitHub 倉庫的 " + path + "！");
     })
     .catch(function(err){
@@ -1026,7 +1030,6 @@
     return 4.5;
   }
 
-  // 階層樹狀平坦化處理
   function getFlattenedNodes(nodes){
     var result = [];
     var childrenMap = {};
@@ -1077,7 +1080,7 @@
   // ---------- 核心繪製邏輯 ----------
   function renderAll(){
     document.getElementById("projectTitle").textContent = state.project || "新材料研發專案";
-    document.getElementById("projectMeta").textContent = "最後更新: " + (state.updated_at || "-") + " ｜ 支援 GitHub API 一鍵同步與 Ctrl+Z 復原";
+    document.getElementById("projectMeta").textContent = "最後更新: " + (state.updated_at || "-") + " ｜ 階層縮排已優化，支援 GitHub API 一鍵同步";
 
     var grid = document.getElementById("roadmapGrid");
     var svgLayer = document.getElementById("dependency-svg");
@@ -1111,7 +1114,7 @@
       grid.style.minWidth = "1000px";
     }
 
-    // 1. 表頭左欄 (凍結窗格)
+    // 表頭左欄
     var headerLeft = makeCell("left header-left", "");
     var titleBox = document.createElement("div");
     titleBox.className = "column-title-box";
@@ -1148,7 +1151,7 @@
       grid.appendChild(emptyRight);
     }
 
-    // 2. 繪製節點列
+    // 繪製節點列
     flatList.forEach(function(item){
       var node = item.node;
 
@@ -1167,7 +1170,6 @@
           var leftPx = ((ps - minDate.getTime()) / (24 * 3600 * 1000)) * dayWidth;
           var widthPx = Math.max((((pe - ps) / (24 * 3600 * 1000)) + 1) * dayWidth, 14);
 
-          // 里程碑 ◆ 渲染
           if (node.category === "milestone" || node.start_date === node.end_date){
             var stoneWrap = document.createElement("div");
             stoneWrap.className = "gantt-milestone-wrap mono";
@@ -1188,7 +1190,6 @@
             stoneWrap.onclick = function(){ openDrawer(node); highlightPair(node.id); };
             cellRight.appendChild(stoneWrap);
           } else {
-            // 甘特長條色塊
             var bar = document.createElement("div");
             bar.className = "gantt-bar mono";
             bar.dataset.nodeId = node.id;
@@ -1235,7 +1236,6 @@
           }
         }
 
-        // 渲染黃色便利貼
         var rowNotes = (state.sticky_notes || []).filter(function(sn){ return sn.node_id === node.id; });
         rowNotes.forEach(function(sn){
           if (!sn.date) return;
@@ -1441,6 +1441,7 @@
     grid.appendChild(line);
   }
 
+  // ---------- 左側欄位建置（修復 DOM 順序與階層對齊） ----------
   function buildLeftCell(item){
     var node = item.node;
     var depth = item.depth;
@@ -1452,19 +1453,7 @@
     var row = document.createElement("div");
     row.className = "node-row";
 
-    if (hasChildren){
-      var collapseBtn = document.createElement("button");
-      collapseBtn.className = "collapse-btn mono";
-      collapseBtn.textContent = collapsedGroups[node.id] ? "▶" : "▼";
-      collapseBtn.title = collapsedGroups[node.id] ? "展開子階段" : "收合子階段";
-      collapseBtn.onclick = function(e){
-        e.stopPropagation();
-        collapsedGroups[node.id] = !collapsedGroups[node.id];
-        renderAll();
-      };
-      row.appendChild(collapseBtn);
-    }
-
+    // 1. 樹狀引線永遠在最前面（寬度由 22px 放大至 26px）
     if (depth > 0){
       var indentWrap = document.createElement("div");
       indentWrap.className = "tree-indent-wrap";
@@ -1481,8 +1470,27 @@
       row.appendChild(indentWrap);
     }
 
+    // 2. 折疊按鈕或葉節點佔位符（緊跟在引線之後，同層絕對對齊）
+    if (hasChildren){
+      var collapseBtn = document.createElement("button");
+      collapseBtn.className = "collapse-btn mono";
+      collapseBtn.textContent = collapsedGroups[node.id] ? "▶" : "▼";
+      collapseBtn.title = collapsedGroups[node.id] ? "展開子階段" : "收合子階段";
+      collapseBtn.onclick = function(e){
+        e.stopPropagation();
+        collapsedGroups[node.id] = !collapsedGroups[node.id];
+        renderAll();
+      };
+      row.appendChild(collapseBtn);
+    } else {
+      var leafSpacer = document.createElement("span");
+      leafSpacer.className = "leaf-spacer";
+      row.appendChild(leafSpacer);
+    }
+
+    // 3. 節點膠囊（套用深度專屬 class）
     var wrap = document.createElement("div");
-    wrap.className = "node" + (node.category === "system" ? " system-node" : "");
+    wrap.className = "node depth-" + Math.min(depth, 3) + (node.category === "system" ? " system-node" : "");
     wrap.dataset.nodeId = node.id;
 
     var dot = document.createElement("span");
@@ -1558,7 +1566,7 @@
     if (hasAnyDetails && expandedDetails[node.id]){
       var card = document.createElement("div");
       card.className = "node-details-card open";
-      var offsetLeft = (depth * 22) + 8;
+      var offsetLeft = (depth * 26) + 26;
       card.style.marginLeft = offsetLeft + "px";
 
       var htmlContent = "";
@@ -1996,7 +2004,7 @@
     document.getElementById("tbEnd").value = "";
   };
 
-  // ---------- 全視圖 PNG 完整截圖機制 ----------
+  // ---------- 全視圖 PNG 截圖 ----------
   document.getElementById("btnExportImage").onclick = function(){
     var target = document.getElementById("captureTarget");
     var wrap = document.getElementById("roadmapWrap");
@@ -2044,7 +2052,7 @@
     });
   };
 
-  // ---------- 檢視與直接貼上 JSON ----------
+  // ---------- JSON 對話框 ----------
   window.closeJsonModal = function(){
     document.getElementById("jsonModal").style.display = "none";
     document.getElementById("overlay").classList.remove("open");
@@ -2054,7 +2062,7 @@
     try {
       var parsed = JSON.parse(document.getElementById("jsonRawText").value);
       if (!parsed.nodes || !Array.isArray(parsed.nodes)){
-        throw new Error("格式不符合 Core Schema：缺少 nodes 陣列");
+        throw new Error("缺少 nodes 陣列");
       }
       state = parsed;
       finalizeState();
@@ -2073,7 +2081,6 @@
     document.getElementById("jsonModal").style.display = "block";
   };
 
-  // ---------- 檔案匯出 / 匯入 ----------
   document.getElementById("btnExport").onclick = function(){
     var blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
     var url = URL.createObjectURL(blob);
@@ -2106,7 +2113,6 @@
     ev.target.value = "";
   });
 
-  // ---------- 主題切換 ----------
   document.getElementById("btnTheme").onclick = function(){
     var root = document.documentElement;
     var current = root.getAttribute("data-theme");
