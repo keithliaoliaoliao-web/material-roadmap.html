@@ -436,23 +436,24 @@
       <h1 id="projectTitle" title="點擊修改專案名稱">新材料研發專案</h1>
       <button class="icon small ghost" id="btnEditTitle" title="修改專案名稱">✎</button>
     </div>
-    <div class="sub" id="projectMeta">最後更新: - ｜ 支援 Ctrl+Z 復原與網址即時分享</div>
+    <div class="sub" id="projectMeta">最後更新: - ｜ 支援 GitHub API 一鍵同步與 Ctrl+Z 復原</div>
   </div>
   <div class="toolbar">
-    <!-- 操作復原/重做按鈕 -->
-    <button class="ghost small" id="btnUndo" title="復原上一步 (Ctrl+Z)" disabled>↩ 復原</button>
-    <button class="ghost small" id="btnRedo" title="重做下一步 (Ctrl+Y)" disabled>↪ 重做</button>
+    <button class="ghost small" id="btnUndo" title="復原 (Ctrl+Z)" disabled>↩ 復原</button>
+    <button class="ghost small" id="btnRedo" title="重做 (Ctrl+Y)" disabled>↪ 重做</button>
     <div class="view-mode-group">
       <button id="vm-week" onclick="switchViewMode('week')">週視圖</button>
       <button id="vm-month" class="active" onclick="switchViewMode('month')">月視圖</button>
       <button id="vm-quarter" onclick="switchViewMode('quarter')">季視圖</button>
     </div>
-    <button class="small" id="btnAddStickyNote" title="在特定列新增黃色便利貼">📝 新增便籤</button>
-    <button class="small" id="btnTimeBands" title="標記重點衝刺期或設備歲修">📅 時段遮罩</button>
-    <button class="small" id="btnShareLink" title="產生帶資料的唯讀網址並複製">🔗 分享連結</button>
+    <button class="small" id="btnAddStickyNote" title="新增便利貼">📝 便籤</button>
+    <button class="small" id="btnTimeBands" title="標記時段遮罩">📅 時段</button>
+    <button class="small" id="btnShareLink" title="產生帶資料的網址並複製">🔗 分享</button>
+    <button class="primary small" id="btnSyncGithub" title="直接將 data.json 提交同步至 GitHub 倉庫">☁️ 同步至 GitHub</button>
+    <button class="icon small ghost" id="btnGithubConfig" title="設定 GitHub 授權金鑰與倉庫資訊">⚙️</button>
     <button class="ghost small" id="btnTheme" title="切換主題">◐ 主題</button>
-    <button class="small" id="btnExportImage" title="匯出高畫質圖片至 PPT">📷 匯出簡報圖 (PNG)</button>
-    <button class="small" id="btnEditJson">檢視/貼上 JSON</button>
+    <button class="small" id="btnExportImage" title="匯出高畫質圖片至 PPT">📷 匯出簡報圖</button>
+    <button class="small" id="btnEditJson">檢視 JSON</button>
     <button class="small" id="btnExport">匯出 JSON</button>
     <button class="small" id="btnImport">匯入 JSON</button>
     <input type="file" id="fileImport" accept="application/json" style="display:none">
@@ -481,7 +482,7 @@
 </main>
 
 <footer>
-  單一 HTML 檔案，支援部署於 GitHub Pages；支援 Ctrl+Z 歷史復原與免匯入網址即時分享。
+  單一 HTML 檔案，支援部署於 GitHub Pages；可透過 GitHub REST API 一鍵提交備份至 GitHub 倉庫。
 </footer>
 
 <!-- 編輯節點抽屜 (Drawer) -->
@@ -563,6 +564,42 @@
   </form>
 </div>
 
+<!-- GitHub API 同步設定對話框 -->
+<div class="modal-dialog" id="githubConfigModal" style="max-width: 480px;">
+  <h3 style="margin-bottom:12px; font-size:15px;">⚙️ GitHub API 同步設定</h3>
+  <div style="font-size:12px; color:var(--ink-dim); margin-bottom:14px; line-height:1.5;">
+    設定將進度表直接 Commit 回你的 GitHub 倉庫。金鑰僅儲存於你本機的瀏覽器中。
+  </div>
+  <form id="githubConfigForm">
+    <div class="field">
+      <label>GitHub 帳號名稱 (Owner / Username)</label>
+      <input type="text" id="ghOwner" required placeholder="例如：your-github-id">
+    </div>
+    <div class="field">
+      <label>倉庫名稱 (Repository Name)</label>
+      <input type="text" id="ghRepo" required placeholder="例如：material-rd-roadmap">
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>分支 (Branch)</label>
+        <input type="text" id="ghBranch" value="main" required>
+      </div>
+      <div class="field">
+        <label>檔案路徑 (File Path)</label>
+        <input type="text" id="ghPath" value="data.json" required>
+      </div>
+    </div>
+    <div class="field">
+      <label>Personal Access Token (PAT 金鑰)</label>
+      <input type="password" id="ghToken" required placeholder="github_pat_ 或 ghp_ 開頭之金鑰">
+    </div>
+    <div style="display:flex; justify-content: flex-end; gap:8px; margin-top:14px;">
+      <button type="button" class="ghost small" onclick="closeGithubConfigModal()">取消</button>
+      <button type="submit" class="primary small">儲存設定</button>
+    </div>
+  </form>
+</div>
+
 <!-- 黃色便利貼管理對話框 -->
 <div class="modal-dialog" id="stickyModal" style="max-width: 460px;">
   <h3 id="stickyModalTitle" style="margin-bottom:12px; font-size:15px;">📝 新增黃色便利貼 (Post-it Note)</h3>
@@ -629,7 +666,8 @@
 (function(){
   "use strict";
 
-  var STORAGE_KEY = "material-core-schema-clickup-v7";
+  var STORAGE_KEY = "material-core-schema-clickup-v8";
+  var GITHUB_CONFIG_KEY = "material-rd-github-config";
   var STATUS_LABEL = { planned:"規劃中", in_progress:"研發中", validating:"驗證中", completed:"已完成", blocked:"暫停/瓶頸" };
   var STATUS_VAR = { planned:"--st-planned", in_progress:"--st-in_progress", validating:"--st-validating", completed:"--st-completed", blocked:"--st-blocked" };
 
@@ -653,7 +691,7 @@
   var viewMode = "month";
   var editingStickyId = null;
 
-  // ---------- Undo / Redo 操作歷史堆疊 (保留 20 步) ----------
+  // ---------- Undo / Redo 操作歷史堆疊 (20 步) ----------
   var historyStack = [];
   var historyIndex = -1;
   var MAX_HISTORY = 20;
@@ -675,7 +713,7 @@
     if (historyIndex > 0){
       historyIndex--;
       state = JSON.parse(historyStack[historyIndex]);
-      saveState(true); // 不重複 pushHistory
+      saveState(true);
       renderAll();
       updateHistoryButtons();
     }
@@ -701,7 +739,6 @@
   document.getElementById("btnUndo").onclick = undo;
   document.getElementById("btnRedo").onclick = redo;
 
-  // 鍵盤監聽 Ctrl+Z 與 Ctrl+Y
   window.addEventListener("keydown", function(e){
     if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z"){
@@ -713,9 +750,9 @@
     }
   });
 
-  // ---------- 三層式資料初始化 (URL Hash -> LocalStorage -> data.json) ----------
+  // ---------- 三層式資料初始化 ----------
   function initApp(){
-    // 1. 第一優先：檢查網址 Hash (#data=...)
+    // 1. 檢查網址 Hash (#data=...)
     var hash = window.location.hash;
     if (hash && hash.indexOf("#data=") === 0){
       try {
@@ -735,7 +772,7 @@
       }
     }
 
-    // 2. 第二優先：讀取瀏覽器 localStorage
+    // 2. 讀取瀏覽器 localStorage
     var localRaw = null;
     try { localRaw = localStorage.getItem(STORAGE_KEY); } catch(e){}
     if (localRaw){
@@ -753,7 +790,7 @@
       } catch(e){}
     }
 
-    // 3. 第三優先：嘗試讀取 GitHub 根目錄的 data.json 兜底
+    // 3. 嘗試讀取 GitHub 根目錄的 data.json 兜底
     fetch("./data.json")
       .then(function(res){
         if (!res.ok) throw new Error("無 data.json");
@@ -797,7 +834,7 @@
     }
   }
 
-  // ---------- 網址一鍵分享功能 (URL Hash Sharing) ----------
+  // ---------- 網址一鍵分享 (URL Hash) ----------
   document.getElementById("btnShareLink").onclick = function(){
     try {
       var jsonStr = JSON.stringify(state);
@@ -814,6 +851,131 @@
     } catch(err){
       alert("產生分享連結失敗：" + err.message);
     }
+  };
+
+  // ---------- GitHub REST API 一鍵自動同步功能 ----------
+  function getGithubConfig(){
+    try {
+      var raw = localStorage.getItem(GITHUB_CONFIG_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch(e){ return null; }
+  }
+
+  function openGithubConfigModal(){
+    var cfg = getGithubConfig() || {};
+    document.getElementById("ghOwner").value = cfg.owner || "";
+    document.getElementById("ghRepo").value = cfg.repo || "";
+    document.getElementById("ghBranch").value = cfg.branch || "main";
+    document.getElementById("ghPath").value = cfg.path || "data.json";
+    document.getElementById("ghToken").value = cfg.token || "";
+
+    document.getElementById("overlay").classList.add("open");
+    document.getElementById("githubConfigModal").style.display = "block";
+  }
+
+  window.closeGithubConfigModal = function(){
+    document.getElementById("githubConfigModal").style.display = "none";
+    document.getElementById("overlay").classList.remove("open");
+  };
+
+  document.getElementById("btnGithubConfig").onclick = openGithubConfigModal;
+
+  document.getElementById("githubConfigForm").onsubmit = function(e){
+    e.preventDefault();
+    var cfg = {
+      owner: document.getElementById("ghOwner").value.trim(),
+      repo: document.getElementById("ghRepo").value.trim(),
+      branch: document.getElementById("ghBranch").value.trim() || "main",
+      path: document.getElementById("ghPath").value.trim() || "data.json",
+      token: document.getElementById("ghToken").value.trim()
+    };
+    try {
+      localStorage.setItem(GITHUB_CONFIG_KEY, JSON.stringify(cfg));
+      closeGithubConfigModal();
+      alert("✓ GitHub API 連線設定已儲存！");
+    } catch(err){ alert("儲存失敗：" + err.message); }
+  };
+
+  document.getElementById("btnSyncGithub").onclick = function(){
+    var cfg = getGithubConfig();
+    if (!cfg || !cfg.owner || !cfg.repo || !cfg.token){
+      alert("尚未設定 GitHub 倉庫連線資訊，請先填寫設定！");
+      openGithubConfigModal();
+      return;
+    }
+
+    var btn = document.getElementById("btnSyncGithub");
+    var originalText = btn.textContent;
+    btn.textContent = "連線同步中...";
+    btn.disabled = true;
+
+    var owner = cfg.owner;
+    var repo = cfg.repo;
+    var branch = cfg.branch || "main";
+    var path = cfg.path || "data.json";
+    var token = cfg.token;
+
+    var apiUrl = "https://api.github.com/repos/" + owner + "/" + repo + "/contents/" + path + "?ref=" + branch;
+
+    // 1. 先抓取該檔案現有的 SHA
+    fetch(apiUrl, {
+      method: "GET",
+      headers: {
+        "Authorization": "Bearer " + token,
+        "Accept": "application/vnd.github.v3+json"
+      }
+    })
+    .then(function(res){
+      if (res.status === 404){
+        return null; // 檔案尚未存在
+      }
+      if (!res.ok){
+        throw new Error("查詢檔案失敗 (HTTP " + res.status + ")");
+      }
+      return res.json();
+    })
+    .then(function(fileData){
+      var sha = fileData ? fileData.sha : null;
+      var jsonStr = JSON.stringify(state, null, 2);
+      var contentBase64 = btoa(unescape(encodeURIComponent(jsonStr)));
+      var todayStr = new Date().toISOString().split("T")[0];
+
+      var putBody = {
+        message: "更新研發進度資料 [" + todayStr + "]",
+        content: contentBase64,
+        branch: branch
+      };
+      if (sha) putBody.sha = sha;
+
+      // 2. 發送 PUT 請求建立或覆蓋檔案
+      return fetch("https://api.github.com/repos/" + owner + "/" + repo + "/contents/" + path, {
+        method: "PUT",
+        headers: {
+          "Authorization": "Bearer " + token,
+          "Accept": "application/vnd.github.v3+json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(putBody)
+      });
+    })
+    .then(function(putRes){
+      if (!putRes.ok){
+        return putRes.json().then(function(errJson){
+          throw new Error(errJson.message || ("HTTP " + putRes.status));
+        });
+      }
+      return putRes.json();
+    })
+    .then(function(result){
+      alert("🎉 成功同步！進度資料已自動提交至 GitHub 倉庫的 " + path + "！");
+    })
+    .catch(function(err){
+      alert("❌ 同步至 GitHub 失敗：" + err.message + "\n請檢查 Token 權限或 Owner/Repo 名稱是否正確。");
+    })
+    .finally(function(){
+      btn.textContent = originalText;
+      btn.disabled = false;
+    });
   };
 
   function addDays(date, n){
@@ -915,7 +1077,7 @@
   // ---------- 核心繪製邏輯 ----------
   function renderAll(){
     document.getElementById("projectTitle").textContent = state.project || "新材料研發專案";
-    document.getElementById("projectMeta").textContent = "最後更新: " + (state.updated_at || "-") + " ｜ 支援 Ctrl+Z 復原與網址即時分享";
+    document.getElementById("projectMeta").textContent = "最後更新: " + (state.updated_at || "-") + " ｜ 支援 GitHub API 一鍵同步與 Ctrl+Z 復原";
 
     var grid = document.getElementById("roadmapGrid");
     var svgLayer = document.getElementById("dependency-svg");
