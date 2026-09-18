@@ -5,5 +5,118 @@
   "time_bands": [],
   "sticky_notes": [],
   "updated_at": "2026-09-18",
-  "nodes": []
+  "nodes": [
+    {
+      "id": "node_mu6853vbhba",
+      "parent_id": "root",
+      "dependency_id": "",
+      "topic": "製程工藝",
+      "category": "system",
+      "start_date": "",
+      "end_date": "",
+      "progress": 0,
+      "status": "planned",
+      "details": {
+        "params": "",
+        "metrics": "無氣泡RTP",
+        "notes": ""
+      }
+    },
+    {
+      "id": "node_mu685nw74fr",
+      "parent_id": "root",
+      "dependency_id": "",
+      "topic": "材料選擇",
+      "category": "system",
+      "start_date": "",
+      "end_date": "",
+      "progress": 0,
+      "status": "planned",
+      "details": {
+        "params": "",
+        "metrics": "高折射 非導體 透明 耐環測",
+        "notes": ""
+      }
+    },
+    {
+      "id": "node_mu686cfphoa",
+      "parent_id": "node_mu6853vbhba",
+      "dependency_id": "",
+      "topic": "灌注方式",
+      "category": "formulation",
+      "start_date": "",
+      "end_date": "",
+      "progress": 0,
+      "status": "in_progress",
+      "details": {
+        "params": "",
+        "metrics": "",
+        "notes": ""
+      }
+    },
+    {
+      "id": "node_mu686msaq55",
+      "parent_id": "node_mu686cfphoa",
+      "dependency_id": "",
+      "topic": "針筒灌注",
+      "category": "formulation",
+      "start_date": "",
+      "end_date": "",
+      "progress": 0,
+      "status": "in_progress",
+      "details": {
+        "params": "",
+        "metrics": "",
+        "notes": ""
+      }
+    },
+    {
+      "id": "node_mu6878u53ip",
+      "parent_id": "node_mu686cfphoa",
+      "dependency_id": "",
+      "topic": "虹吸",
+      "category": "formulation",
+      "start_date": "",
+      "end_date": "",
+      "progress": 0,
+      "status": "in_progress",
+      "details": {
+        "params": "",
+        "metrics": "",
+        "notes": ""
+      }
+    },
+    {
+      "id": "node_mu6884znds7",
+      "parent_id": "node_mu685nw74fr",
+      "dependency_id": "",
+      "topic": "矽油",
+      "category": "formulation",
+      "start_date": "",
+      "end_date": "",
+      "progress": 0,
+      "status": "in_progress",
+      "details": {
+        "params": "",
+        "metrics": "",
+        "notes": ""
+      }
+    },
+    {
+      "id": "node_mu688v6yy42",
+      "parent_id": "node_mu685nw74fr",
+      "dependency_id": "",
+      "topic": "氟化液",
+      "category": "formulation",
+      "start_date": "",
+      "end_date": "",
+      "progress": 0,
+      "status": "in_progress",
+      "details": {
+        "params": "",
+        "metrics": "",
+        "notes": ""
+      }
+    }
+  ]
 }
