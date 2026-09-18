@@ -1,6 +1,6 @@
 {
   "project": "新材料研發專案",
-  "column_title": "材料架構 / 實驗階段",
+  "column_title": "高穿透RTP",
   "view_mode": "month",
   "time_bands": [],
   "sticky_notes": [],
@@ -116,6 +116,102 @@
         "params": "",
         "metrics": "",
         "notes": ""
+      }
+    },
+    {
+      "id": "node_mu68caf3m5p",
+      "parent_id": "node_mu6884znds7",
+      "dependency_id": "",
+      "topic": "Ti-1050 5 cSt",
+      "category": "formulation",
+      "start_date": "2025-11-03",
+      "end_date": "2025-12-02",
+      "progress": 0,
+      "status": "in_progress",
+      "details": {
+        "params": "",
+        "metrics": "",
+        "notes": "熱重損失 光學pass"
+      }
+    },
+    {
+      "id": "node_mu68g4j5twq",
+      "parent_id": "node_mu6884znds7",
+      "dependency_id": "",
+      "topic": "47V50 50 cSt",
+      "category": "formulation",
+      "start_date": "2025-11-03",
+      "end_date": "2025-12-02",
+      "progress": 0,
+      "status": "in_progress",
+      "details": {
+        "params": "",
+        "metrics": "",
+        "notes": "熱重損失 光學pass"
+      }
+    },
+    {
+      "id": "node_mu68hl7czj1",
+      "parent_id": "node_mu6884znds7",
+      "dependency_id": "",
+      "topic": "PMX200 50 cSt",
+      "category": "formulation",
+      "start_date": "2025-11-03",
+      "end_date": "2025-12-02",
+      "progress": 0,
+      "status": "in_progress",
+      "details": {
+        "params": "",
+        "metrics": "",
+        "notes": "熱重損失 光學pass"
+      }
+    },
+    {
+      "id": "node_mu68k2irnk0",
+      "parent_id": "node_mu688v6yy42",
+      "dependency_id": "",
+      "topic": "Y-6108",
+      "category": "formulation",
+      "start_date": "2026-05-11",
+      "end_date": "2026-06-08",
+      "progress": 0,
+      "status": "in_progress",
+      "details": {
+        "params": "",
+        "metrics": "",
+        "notes": "液體往下垂流"
+      }
+    },
+    {
+      "id": "node_mu68m58zkve",
+      "parent_id": "node_mu688v6yy42",
+      "dependency_id": "",
+      "topic": "HT270",
+      "category": "formulation",
+      "start_date": "2026-05-12",
+      "end_date": "2026-06-22",
+      "progress": 0,
+      "status": "in_progress",
+      "details": {
+        "params": "",
+        "metrics": "",
+        "notes": "液體往下垂流"
+      }
+    },
+    {
+      "id": "node_mu68oaj49hw",
+      "parent_id": "node_mu6884znds7",
+      "dependency_id": "",
+      "topic": "KF-50 300 cst",
+      "category": "formulation",
+      "start_date": "2026-05-12",
+      "end_date": "2026-07-02",
+      "progress": 0,
+      "status": "planned",
+      "details": {
+        "params": "",
+        "metrics": "",
+        "notes": "KF-50苯甲基矽油較二甲基矽油容易擦拭乾淨"
       }
     }
   ]
