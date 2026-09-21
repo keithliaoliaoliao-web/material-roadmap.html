@@ -13,11 +13,23 @@
     {
       "id": "node_muahvry4fyf",
       "node_id": "node_mu6q51ftdy7",
-      "date": "2026-01-25",
+      "date": "2026-02-03",
       "text": "封口fail"
+    },
+    {
+      "id": "node_muaid2e7lr7",
+      "node_id": "node_mu6q12fijsn",
+      "date": "2026-01-08",
+      "text": "封口fail"
+    },
+    {
+      "id": "node_muaiimleih8",
+      "node_id": "node_muaieik0uh2",
+      "date": "2026-06-09",
+      "text": "41433 pass"
     }
   ],
-  "updated_at": "2026-09-18",
+  "updated_at": "2026-09-21",
   "nodes": [
     {
       "id": "node_mu6853vbhba",
@@ -267,6 +279,54 @@
       "category": "formulation",
       "start_date": "2026-02-24",
       "end_date": "2026-03-18",
+      "progress": 0,
+      "status": "in_progress",
+      "details": {
+        "params": "",
+        "metrics": "",
+        "notes": ""
+      }
+    },
+    {
+      "id": "node_muaieik0uh2",
+      "parent_id": "node_mu686msaq55",
+      "dependency_id": "",
+      "topic": "封口膠survey",
+      "category": "formulation",
+      "start_date": "2026-05-12",
+      "end_date": "2026-06-15",
+      "progress": 0,
+      "status": "in_progress",
+      "details": {
+        "params": "41433",
+        "metrics": "",
+        "notes": ""
+      }
+    },
+    {
+      "id": "node_muaikxnmnf3",
+      "parent_id": "node_mu6878u53ip",
+      "dependency_id": "",
+      "topic": "框膠單開",
+      "category": "formulation",
+      "start_date": "2026-08-03",
+      "end_date": "2026-08-21",
+      "progress": 0,
+      "status": "in_progress",
+      "details": {
+        "params": "",
+        "metrics": "",
+        "notes": ""
+      }
+    },
+    {
+      "id": "node_muailue7k7q",
+      "parent_id": "node_mu6878u53ip",
+      "dependency_id": "",
+      "topic": "框膠雙開",
+      "category": "formulation",
+      "start_date": "2026-08-24",
+      "end_date": "2026-09-14",
       "progress": 0,
       "status": "in_progress",
       "details": {
