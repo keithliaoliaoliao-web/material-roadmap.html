@@ -3,7 +3,20 @@
   "column_title": "高穿透RTP",
   "view_mode": "month",
   "time_bands": [],
-  "sticky_notes": [],
+  "sticky_notes": [
+    {
+      "id": "node_muahv7q915e",
+      "node_id": "node_mu6qekiz3h1",
+      "date": "2026-03-11",
+      "text": "漏油"
+    },
+    {
+      "id": "node_muahvry4fyf",
+      "node_id": "node_mu6q51ftdy7",
+      "date": "2026-01-25",
+      "text": "封口fail"
+    }
+  ],
   "updated_at": "2026-09-18",
   "nodes": [
     {
@@ -207,11 +220,59 @@
       "start_date": "2026-05-12",
       "end_date": "2026-07-02",
       "progress": 0,
-      "status": "planned",
+      "status": "in_progress",
       "details": {
         "params": "",
         "metrics": "",
         "notes": "KF-50苯甲基矽油較二甲基矽油容易擦拭乾淨"
+      }
+    },
+    {
+      "id": "node_mu6q12fijsn",
+      "parent_id": "node_mu686msaq55",
+      "dependency_id": "",
+      "topic": "側邊開縫灌注",
+      "category": "formulation",
+      "start_date": "2025-12-12",
+      "end_date": "2026-01-12",
+      "progress": 0,
+      "status": "in_progress",
+      "details": {
+        "params": "Ti-1050 47V50 PMX200 26g針頭",
+        "metrics": "",
+        "notes": ""
+      }
+    },
+    {
+      "id": "node_mu6q51ftdy7",
+      "parent_id": "node_mu686msaq55",
+      "dependency_id": "",
+      "topic": "框膠撈孔灌注",
+      "category": "formulation",
+      "start_date": "2026-01-12",
+      "end_date": "2026-02-08",
+      "progress": 0,
+      "status": "in_progress",
+      "details": {
+        "params": "Ti-1050 26g針頭",
+        "metrics": "",
+        "notes": ""
+      }
+    },
+    {
+      "id": "node_mu6qekiz3h1",
+      "parent_id": "node_mu686msaq55",
+      "dependency_id": "",
+      "topic": "PI毛細管",
+      "category": "formulation",
+      "start_date": "2026-02-24",
+      "end_date": "2026-03-18",
+      "progress": 0,
+      "status": "in_progress",
+      "details": {
+        "params": "",
+        "metrics": "",
+        "notes": ""
       }
     }
   ]
