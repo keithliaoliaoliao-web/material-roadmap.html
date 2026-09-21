@@ -2,7 +2,14 @@
   "project": "新材料研發專案",
   "column_title": "高穿透RTP",
   "view_mode": "month",
-  "time_bands": [],
+  "time_bands": [
+    {
+      "id": "node_muayzk0ktcc",
+      "name": "EVT",
+      "start": "2026-10-12",
+      "end": "2026-12-08"
+    }
+  ],
   "sticky_notes": [
     {
       "id": "node_muahv7q915e",
@@ -373,12 +380,60 @@
       "id": "node_muas34owh4a",
       "parent_id": "node_mu6853vbhba",
       "dependency_id": "",
-      "topic": "工研院合作",
+      "topic": "工研院合作洽談",
       "category": "formulation",
       "start_date": "2026-09-11",
       "end_date": "2026-10-30",
       "progress": 0,
       "status": "planned",
+      "details": {
+        "params": "",
+        "metrics": "",
+        "notes": ""
+      }
+    },
+    {
+      "id": "node_muay6bpr1nw",
+      "parent_id": "node_muas34owh4a",
+      "dependency_id": "",
+      "topic": "樣品製備",
+      "category": "formulation",
+      "start_date": "2026-09-22",
+      "end_date": "2026-10-13",
+      "progress": 0,
+      "status": "in_progress",
+      "details": {
+        "params": "7吋無框膠RTP",
+        "metrics": "",
+        "notes": ""
+      }
+    },
+    {
+      "id": "node_muay7kb6pkg",
+      "parent_id": "node_muay6bpr1nw",
+      "dependency_id": "",
+      "topic": "樣品環測",
+      "category": "formulation",
+      "start_date": "2026-10-12",
+      "end_date": "2026-12-08",
+      "progress": 0,
+      "status": "in_progress",
+      "details": {
+        "params": "",
+        "metrics": "",
+        "notes": ""
+      }
+    },
+    {
+      "id": "node_muaz18ij6no",
+      "parent_id": "node_muay6bpr1nw",
+      "dependency_id": "",
+      "topic": "功能驗證",
+      "category": "formulation",
+      "start_date": "2026-10-12",
+      "end_date": "2026-12-08",
+      "progress": 0,
+      "status": "in_progress",
       "details": {
         "params": "",
         "metrics": "",
