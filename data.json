@@ -27,6 +27,18 @@
       "node_id": "node_muaieik0uh2",
       "date": "2026-06-09",
       "text": "41433 pass"
+    },
+    {
+      "id": "node_muaiody3swf",
+      "node_id": "node_muaikxnmnf3",
+      "date": "2026-08-19",
+      "text": "吸不滿"
+    },
+    {
+      "id": "node_muait806fno",
+      "node_id": "node_muaipttazd0",
+      "date": "2026-09-08",
+      "text": "回彈fail"
     }
   ],
   "updated_at": "2026-09-21",
@@ -310,7 +322,7 @@
       "topic": "框膠單開",
       "category": "formulation",
       "start_date": "2026-08-03",
-      "end_date": "2026-08-21",
+      "end_date": "2026-08-24",
       "progress": 0,
       "status": "in_progress",
       "details": {
@@ -330,7 +342,23 @@
       "progress": 0,
       "status": "in_progress",
       "details": {
-        "params": "",
+        "params": "F+G / G+G",
+        "metrics": "",
+        "notes": ""
+      }
+    },
+    {
+      "id": "node_muaipttazd0",
+      "parent_id": "node_mu686cfphoa",
+      "dependency_id": "",
+      "topic": "矽凝膠",
+      "category": "formulation",
+      "start_date": "2026-08-18",
+      "end_date": "2026-09-15",
+      "progress": 0,
+      "status": "in_progress",
+      "details": {
+        "params": "BT-9055",
         "metrics": "",
         "notes": ""
       }
