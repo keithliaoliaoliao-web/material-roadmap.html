@@ -39,6 +39,12 @@
       "node_id": "node_muaipttazd0",
       "date": "2026-09-08",
       "text": "回彈fail"
+    },
+    {
+      "id": "node_muas4z23f5g",
+      "node_id": "node_muailue7k7q",
+      "date": "2026-09-10",
+      "text": "吸不滿"
     }
   ],
   "updated_at": "2026-09-21",
@@ -359,6 +365,22 @@
       "status": "in_progress",
       "details": {
         "params": "BT-9055",
+        "metrics": "",
+        "notes": ""
+      }
+    },
+    {
+      "id": "node_muas34owh4a",
+      "parent_id": "node_mu6853vbhba",
+      "dependency_id": "",
+      "topic": "工研院合作",
+      "category": "formulation",
+      "start_date": "2026-09-11",
+      "end_date": "2026-10-30",
+      "progress": 0,
+      "status": "planned",
+      "details": {
+        "params": "",
         "metrics": "",
         "notes": ""
       }
